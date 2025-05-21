@@ -41,3 +41,26 @@ def init_db_command():
 def init_app(app):
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
+
+#설문조사
+
+def save_survey_result(user_id, travel_style, priority, places, purposes, must_go, total_score):
+    conn = sqlite3.connect("sqlite_db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        INSERT INTO survey_results (user_id, travel_style, priority, places, purposes, must_go, total_score)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (
+        user_id,
+        travel_style,
+        ",".join(priority),
+        ",".join(places),
+        ",".join(purposes),
+        ",".join(must_go),
+        total_score
+    ))
+
+    conn.commit()
+    conn.close()
+

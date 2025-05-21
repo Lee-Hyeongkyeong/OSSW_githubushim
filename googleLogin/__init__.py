@@ -1,5 +1,8 @@
 from flask import Flask
 from flask_login import LoginManager
+from googleLogin.survey import survey_bp
+app.register_blueprint(survey_bp)
+
 
 app = Flask(__name__)
 app.secret_key = "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"
