@@ -1,6 +1,14 @@
 # 설문조사 결과 키워드에 맵핑
-from googleLogin.survey import calculate_weights
-from googleLogin.recommendation import recommend_destinations
+from Survey.survey import calculate_weights
+import jason
+
+user_survey = {
+    "여행 스타일": "휴식형",
+    "중요 요소": ["관광지", "맛집", "액티비티"],
+    "선호 장소": ["자연", "역사"],
+    "여행 목적": ["힐링", "체험"],
+    "필수 장소": ["트렌디"]
+}
 
 tag_map = {
         "travle_style": {
@@ -34,3 +42,55 @@ tag_map = {
             "홍대병 스팟": "로컬"
         }
     }
+
+    def compute_user_tag_scores(survey_answers):
+    tag_scores = {}
+
+    # Q1. 여행 스타일 (단일 선택, 30점)
+    style = survey_answers.get("여행 스타일")
+    for tag in survey_tag_map["여행 스타일"].get(style, []):
+        tag_scores[tag] = tag_scores.get(tag, 0) + 30
+
+    # Q2. 중요 요소 (순위 선택, 30점: 15,10,5)
+    importance = survey_answers.get("중요 요소", [])
+    weights = [15, 10, 5]
+    for i, choice in enumerate(importance[:3]):
+        tag = survey_tag_map["중요 요소"].get(choice)
+        if tag:
+            tag_scores[tag] = tag_scores.get(tag, 0) + weights[i]
+
+    # Q3. 선호 장소 (최대 24점, 항목당 4점)
+    places = survey_answers.get("선호 장소", [])
+    for place in places:
+        tag = survey_tag_map["선호 장소"].get(place)
+        if tag:
+            tag_scores[tag] = tag_scores.get(tag, 0) + 4
+
+    # Q4. 여행 목적 (최대 16점, 항목당 4점)
+    purposes = survey_answers.get("여행 목적", [])
+    for purpose in purposes:
+        for tag in survey_tag_map["여행 목적"].get(purpose, []):
+            tag_scores[tag] = tag_scores.get(tag, 0) + 4
+
+    # Q5. 필수 장소 (가중치 없음, 필터용)
+    must_go = survey_answers.get("필수 장소", [])
+    tag_scores["필터"] = [
+        survey_tag_map["필수 장소"].get(p)
+        for p in must_go if survey_tag_map["필수 장소"].get(p)
+    ]
+
+    return tag_scores
+
+# 실행
+if __name__ == "__main__":
+    result = compute_user_tag_scores(user_survey)
+
+    # 결과 저장
+    with open("user_profile.json", "w", encoding="utf-8") as f:
+        json.dump(result, f, ensure_ascii=False, indent=2)
+
+    print("✅ 사용자 태그 점수 프로필 생성 완료!")
+    print("📁 저장 파일: user_profile.json")
+    print("\n🎯 태그 점수:")
+    for k, v in result.items():
+        print(f"{k}: {v}")
