@@ -1,70 +1,28 @@
-# Getting Started with Create React App
+# OSSW_githubushim
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## 👥 팀원 & 역할 분담
 
-## Available Scripts
+| 이름 | 역할 | 담당 기능 |
+|------|------|-----------|
+| 박인영 | 팀장 / 백엔드 C + AI / 문서화 / 발표 | 챗봇 추천 기능 + 데이터 API |
+| 이예나 | 백엔드 B | 콘텐츠 추천 시스템 |
+| 이형경 | 프론트엔드 + 디자인 / AI | 화면 구성, UI |
+| 최재훈 | 백엔드 A + AI | 사용자 설문 처리 & 추천 알고리즘 |
 
-In the project directory, you can run:
+✅ 백엔드 A :
+사용자 설문 데이터를 구조화하여 저장/전달
+설문 기반 도시 추천 로직 구현 (콘텐츠 기반 필터링)
+사용자 입력 → 도시 추천까지의 파이프라인 설계
+관련 데이터셋 가공 및 테스트
 
-### `npm start`
+✅ 백엔드 B :
+도시 선택 후 관광지, 식당, 액티비티 추천 알고리즘 개발
+장소별 카테고리, 특징 기반으로 유사도 계산
+JSON 형태로 프론트에 추천 데이터 제공
+(필요 시) Google Places API, OpenTripMap API 등 활용
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+✅ 백엔드 C :
+간단한 챗봇 백엔드 구축 (조건 기반 or Dialogflow 연동)
+시간/위치 기반 추천 로직 처리 (Mock 데이터 기반이라도 OK)
+모든 API 통합 관리 (FastAPI 등에서 RESTful 설계)
+DB 연결 및 간단한 CRUD 설계
