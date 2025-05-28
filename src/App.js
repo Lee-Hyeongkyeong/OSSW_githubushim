@@ -15,6 +15,7 @@ import Recommendation2 from './pages/Recommendation2';
 import Recommendation3 from './pages/Recommendation3';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import FloatingChat from './components/FloatingChat';
 
 const App = () => {
   return (
@@ -35,6 +36,7 @@ const App = () => {
         <Route path='/recommend-abstract' element={<Recommendation2 />} />
         <Route path='/recommend-detail' element={<Recommendation3 />} />
       </Routes>
+      <FloatingChat />
       <Footer />
     </div>
   );
