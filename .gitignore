@@ -1,3 +1,8 @@
+# ——————————————————————————————
+# 공통 안내
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# ——————————————————————————————
 # Python
 __pycache__/
 *.pyc
@@ -5,8 +10,33 @@ __pycache__/
 # Virtual environment
 venv/
 
-# Environment variables
-.env
+# ——————————————————————————————
+# Node.js / Front-end
+/node_modules
+/.pnp
+.pnp.js
 
-# MacOS
+# testing: 코드 커버리지 결과물
+/coverage
+
+# production(빌드 결과물)
+/build
+
+# ——————————————————————————————
+# Environment variables
+# (Python, Node 등에서 공통으로 사용될 수 있는 .env 파일)
+/.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ——————————————————————————————
+# 로그 파일
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ——————————————————————————————
+# macOS 시스템 파일
 .DS_Store
