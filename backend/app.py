@@ -3,6 +3,11 @@ import json
 import os
 import sqlite3
 
+from backend.survey.survey    import survey_bp
+#필요시 API 추가
+#from googleLogin.views import google_bp 
+#from user             import user_bp
+
 from flask import Flask, redirect, request, url_for
 from flask_login import (
     LoginManager,
@@ -14,8 +19,8 @@ from flask_login import (
 from oauthlib.oauth2 import WebApplicationClient
 import requests
 
-from googleLogin.db import init_db_command
-from googleLogin.user import User
+from backend.googleLogin.db import init_db_command
+from backend.googleLogin.user import User
 
 import os
 from dotenv import load_dotenv
@@ -48,7 +53,7 @@ def unauthorized():
     return "You must be logged in to access this content.", 403
 
 
-# Naive database setup
+# Naive database setup DB 초기화
 try:
     init_db_command()
 except sqlite3.OperationalError:
@@ -63,6 +68,11 @@ client = WebApplicationClient(GOOGLE_CLIENT_ID)
 @login_manager.user_loader
 def load_user(user_id):
     return User.get(user_id)
+
+# Blueprint 등록
+#app.register_blueprint(user_bp,   url_prefix="/api/user")
+app.register_blueprint(survey_bp, url_prefix="/api/survey")
+#app.register_blueprint(google_bp, url_prefix="/api/auth")
 
 
 @app.route("/")
