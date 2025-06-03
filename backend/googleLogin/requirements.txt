@@ -1,0 +1,6 @@
+Flask
+Flask-Login
+requests
+oauthlib
+python-dotenv
+pyOpenSS
