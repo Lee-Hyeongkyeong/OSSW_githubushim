@@ -1,98 +1,53 @@
-# CATEGORY_KEYWORDS = {
-    # 독립 카테고리
-#    "카페": ["카페", "브런치카페", "디저트카페", "테마카페"],
-#    "한식": ["한식", "한식당", "비빔밥", "불고기", "삼겹살"],
-#    "일식": ["일식", "초밥", "라멘", "돈까스"],
-#    "중식": ["중식", "중국집", "짜장면", "양꼬치"],
-#    "양식": ["양식", "피자", "파스타", "스테이크"],
-#    
-#    # 상위 카테고리
-#    "문화": ["미술관", "박물관", "공연장", "전시관"],
-#    "액티비티": ["클라이밍", "볼링장", "노래방", "방탈출"],
-#    "역사": ["유적지", "고궁", "사적지"],
-#    "자연": ["산", "호수", "강", "해변", "공원"],
-#    "가족": ["키즈카페", "동물원", "수족관"],
-#   "사진명소": ["전망대", "포토존", "야경"],
-#   "쇼핑": ["백화점", "쇼핑몰", "시장"],
-#   "이색": ["테마카페", "이색체험", "VR방"]
-#} 
+import os
+import openai
 
-GOOGLE_PLACE_TYPE_MAP = {
-    "카페": ["cafe"],
-    "커피": ["cafe"],
-    "커피숍": ["cafe"],
-    "카페테리아": ["cafe"],
-    "한식": ["restaurant"],  # 세부 한식은 구글에서 지원하지 않음
-    "일식": ["restaurant"],
-    "중식": ["restaurant"],
-    "양식": ["restaurant"],
-    "맛집": ["restaurant"],
-    "식당": ["restaurant"],
-    "음식점": ["restaurant"],
-    "피자": ["restaurant"],
-    "파스타": ["restaurant"],
-    "초밥": ["restaurant"],
-    "치킨": ["restaurant"],
-    "술집": ["bar"],
-    "펍": ["bar"],
-    "미술관": ["art_gallery"],
-    "박물관": ["museum"],
-    "공연장": ["movie_theater", "stadium", "theater"],
-    "전시관": ["museum"],
-    "클라이밍": ["gym"],
-    "볼링장": ["bowling_alley"],
-    "노래방": ["night_club"],
-    "방탈출": ["amusement_center"],
-    "유적지": ["tourist_attraction"],
-    "고궁": ["tourist_attraction"],
-    "사적지": ["tourist_attraction"],
-    "산": ["park"],
-    "호수": ["park"],
-    "강": ["park"],
-    "해변": ["park"],
-    "공원": ["park"],
-    "키즈카페": ["cafe"],
-    "동물원": ["zoo"],
-    "수족관": ["aquarium"],
-    "전망대": ["tourist_attraction"],
-    "포토존": ["tourist_attraction"],
-    "야경": ["tourist_attraction"],
-    "백화점": ["shopping_mall", "department_store"],
-    "쇼핑몰": ["shopping_mall"],
-    "시장": ["shopping_mall"],
-    "테마카페": ["cafe"],
-    "이색체험": ["amusement_center"],
-    "VR방": ["amusement_center"],
-    # 영어 Place Type 직접 입력도 지원
-    "cafe": ["cafe"],
-    "restaurant": ["restaurant"],
-    "bar": ["bar"],
-    "museum": ["museum"],
-    "art_gallery": ["art_gallery"],
-    "park": ["park"],
-    "zoo": ["zoo"],
-    "aquarium": ["aquarium"],
-    "shopping_mall": ["shopping_mall"],
-    "department_store": ["department_store"],
-    "movie_theater": ["movie_theater"],
-    "bowling_alley": ["bowling_alley"],
-    "gym": ["gym"],
-    "night_club": ["night_club"],
-    "stadium": ["stadium"],
-    "theater": ["theater"],
-    "amusement_center": ["amusement_center"],
-    "tourist_attraction": ["tourist_attraction"]
-}
+client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+def extract_parameters_with_openai(user_input):
+    prompt = f"""
+    사용자의 요청 문장에서 아래 항목을 JSON으로 추출해줘.
+    - category: 추천받고 싶은 장소/음식 카테고리(예: 중식, 카페, 초밥 등)
+    - radius: 숫자(미터 단위, 없으면 2000)
+    - sort_by: "distance", "rating", "user_ratings_total" 중 하나(없으면 "rating")
+    예시 입력: "반경 3km 이내의 중식집 추천해줘."
+    예시 출력: {{"category": "중식", "radius": 3000, "sort_by": "rating"}}
+    입력: "{user_input}"
+    출력:
+    """
+    response = client.chat.completions.create(
+        model="gpt-4.1-nano",  # 여기만 변경
+        messages=[
+            {"role": "system", "content": "너는 입력 문장에서 category, radius, sort_by를 추출해 JSON으로 반환하는 파서야."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=60,
+        temperature=0
+    )
+    import json
+    try:
+        result = json.loads(response.choices[0].message.content.strip())
+        return {
+            "category": result.get("category", ""),
+            "radius": int(result.get("radius", 2000)),
+            "sort_by": result.get("sort_by", "rating")
+        }
+    except Exception:
+        # 파싱 실패 시 기본값
+        return {
+            "category": user_input.strip(),
+            "radius": 2000,
+            "sort_by": "rating"
+        }
 
 def extract_search_keywords(user_input):
-    # 입력어를 그대로 keyword로 사용
     return [user_input.strip()] if user_input.strip() else []
 
 def parse_request(request_data):
     user_input = request_data.get("user_input", "")
-    location = "현재 위치"
-    search_keywords = extract_search_keywords(user_input)
+    params = extract_parameters_with_openai(user_input)
     return {
-        "location": location,
-        "search_keywords": search_keywords
+        "location": "현재 위치",
+        "search_keywords": [params["category"]],
+        "radius": params["radius"],
+        "sort_by": params["sort_by"]
     }

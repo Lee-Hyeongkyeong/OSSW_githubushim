@@ -11,7 +11,7 @@ class GoogleMapsAPI:
             "key": self.api_key,
             "location": f"{latitude},{longitude}",
             "radius": radius,
-            "keyword": query,  # 여기에 "초밥", "삼겹살", "브런치", "비건" 등 자유 입력
+            "keyword": query,  
             "language": "ko"
         }
         response = requests.get(url, params=params)
