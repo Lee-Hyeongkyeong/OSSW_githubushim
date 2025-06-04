@@ -44,3 +44,7 @@ yarn-error.log*
 node_modules/
 .json
 .sqlite_db
+
+# 제외할 파일들
+backend/googleLogin/sqlite_db
+backend/survey/*.json
