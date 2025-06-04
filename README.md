@@ -1,4 +1,3 @@
-Add commentMore actions
 
 ## 👥 팀원 & 역할 분담
 
