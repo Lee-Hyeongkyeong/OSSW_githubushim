@@ -90,17 +90,28 @@ const cityList = [
   }
 ];
 
-const RecommendationMain = ({ name = "홍길동" }) => {
+const RecommendationMain = () => {
   // 1) 서버에서 받은 추천 결과를 담을 상태
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selected, setSelected] = useState(null);
+  const [userName, setUserName] = useState(null);
 
     const navigate = useNavigate();
 
   // 2) 마운트 시 한 번만 호출
   useEffect(() => {
+    fetch("https://127.0.0.1:5000/api/userinfo", {
+      credentials: "include" // 세션 기반 로그인일 경우 필요
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.name) setUserName(data.name);
+      })
+      .catch((err) => {
+        console.error("이름 불러오기 실패:", err);
+      });
     const fetchRecommendations = async () => {
       setLoading(true);
       setError(null);
@@ -133,7 +144,7 @@ const RecommendationMain = ({ name = "홍길동" }) => {
     <MainContainer>
       <Title>이 도시는 어때요?</Title>
       <SubTitle>
-        <b>{name}</b> 님의 여행 취향에 맞는 도시들을 골라 봤어요.
+        <b>{userName}</b> 님의 여행 취향에 맞는 도시들을 골라 봤어요.
         <br />
         아래 도시 중 하나를 선택하면, 도시에서 즐길 수 있는 다양한 방문지들을 추천해드릴게요!
       </SubTitle>

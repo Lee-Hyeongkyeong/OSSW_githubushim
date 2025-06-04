@@ -115,6 +115,14 @@ def login():
     )
     return redirect(request_uri)
 
+@app.route("/api/userinfo", methods=["GET"])
+def userinfo():
+    if current_user.is_authenticated:
+        return jsonify({
+            "name": current_user.name
+        })
+    else:
+        return jsonify({"error": "Unauthorized"}), 401
 
 @app.route("/login/callback")
 def callback():
