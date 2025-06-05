@@ -12,10 +12,9 @@ venv/
 
 # ——————————————————————————————
 # Node.js / Front-end
-/node_modules
+**/node_modules/
 /.pnp
 .pnp.js
-node_modules/
 
 # testing: 코드 커버리지 결과물
 /coverage
