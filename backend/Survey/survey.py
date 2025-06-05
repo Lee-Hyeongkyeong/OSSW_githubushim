@@ -8,7 +8,8 @@ import sqlite3
 
 survey_bp = Blueprint('survey', __name__)
 
-@survey_bp.route('/api/survey', methods=['POST'])
+@survey_bp.route('', methods=['POST'])
+@survey_bp.route('/', methods=['POST'])
 # @login_required  # Temporarily commented out for testing
 def submit_survey():
     try:
@@ -21,6 +22,29 @@ def submit_survey():
         if not data or 'travel_style' not in data:
             return jsonify({"error": "Invalid data format"}), 400
 
+        # Load existing profile if it exists
+        try:
+            with open("user_profile.json", "r", encoding="utf-8") as f:
+                existing_profile = json.load(f)
+                # Merge new data with existing data
+                if 'survey_data' not in existing_profile:
+                    existing_profile['survey_data'] = {}
+                # Accumulate data instead of overwriting (추가됨: 설문 데이터가 누적되도록 변경)
+                for key, value in data.items():
+                    # For travel_style, always update
+                    if key == 'travel_style':
+                        existing_profile['survey_data'][key] = value
+                    # For priorities, places, and purposes, replace the entire list
+                    elif key in ['priorities', 'places', 'purposes']:
+                        existing_profile['survey_data'][key] = value
+                    # For other fields, update as is
+                    else:
+                        existing_profile['survey_data'][key] = value
+                data = existing_profile['survey_data']
+        except FileNotFoundError:
+            # If no existing profile, create new one
+            existing_profile = {'survey_data': data}
+
         # 1) 태그별 가중치 점수 & 필터 태그 계산
         user_weights, filter_tags = compute_user_tag_scores(data)
         total_score = sum(user_weights.values())
@@ -29,7 +53,8 @@ def submit_survey():
         profile = {
             "weights": user_weights,
             "filter_tags": filter_tags,
-            "total_score": total_score
+            "total_score": total_score,
+            "survey_data": data  # Store the complete survey data
         }
         with open("user_profile.json", "w", encoding="utf-8") as f:
             json.dump(profile, f, ensure_ascii=False, indent=2)
@@ -56,7 +81,7 @@ def submit_survey():
         print("Error in submit_survey:", str(e))  # 디버깅용
         return jsonify({"error": str(e)}), 500
 
-@survey_bp.route('/api/survey/history', methods=['GET'])
+@survey_bp.route('/history', methods=['GET'])
 @login_required
 def check_survey_history():
     try:
@@ -90,6 +115,7 @@ def compute_user_tag_scores(survey_answers):
     5) must_go → 필터용 태그 리스트
     """
     weights = defaultdict(int)
+    print("Computing scores for:", survey_answers)  # 디버깅용
 
     # (1) 여행 스타일 – 30점 (균등)
     style_map = {
@@ -99,8 +125,10 @@ def compute_user_tag_scores(survey_answers):
         "휴식형": ["힐링", "휴양지"]
     }
     style = survey_answers.get("travel_style")
-    for tag in style_map.get(style, []):
-        weights[tag] += 30
+    if style:
+        for tag in style_map.get(style, []):
+            weights[tag] += 30
+        print(f"Style scores for {style}:", {tag: weights[tag] for tag in style_map.get(style, [])})  # 디버깅용
 
     # (2) 중요 요소 – 1순위 15, 2순위 10, 3순위 5
     priority_map = {
@@ -109,23 +137,48 @@ def compute_user_tag_scores(survey_answers):
         "관광지": "관광지"
     }
     priority_scores = [15, 10, 5]
-    for i, choice in enumerate(survey_answers.get("priority", [])[:3]):
-        tag = priority_map.get(choice)
-        if tag:
-            weights[tag] += priority_scores[i]
+    priorities = survey_answers.get("priorities", [])
+    #     # for i, choice in enumerate(survey_answers.get("priority", [])[:3]):
+    # for i, choice in enumerate(priorities[:3]):
+    #     tag = priority_map.get(choice)
+    #     if tag:
+    #         weights[tag] += priority_scores[i]
+    # if priorities:
+    # 여기서 cursor 가 total score 변겨 안됨 이슈로 아래로 변경함
+    
+    if priorities:  # Only process if priorities exist
+        for i, choice in enumerate(priorities[:3]):
+            tag = priority_map.get(choice)
+            if tag:
+                weights[tag] += priority_scores[i]
+        print(f"Priority scores:", {priority_map.get(p, p): priority_scores[i] for i, p in enumerate(priorities[:3])})  # 디버깅용
 
     # (3) 선호 장소 – 다중 선택 최대2개
     place_map = {
         "바다": "자연", "자연": "자연", "도심": "도심",
         "이색거리": "문화", "역사": "역사", "휴양지": "휴양지"
     }
-    places = [place_map[p] for p in survey_answers.get("places", []) if p in place_map]
-    places = list(dict.fromkeys(places))  # 중복 제거
-    if len(places) == 1:
-        weights[places[0]] += 18
-    elif len(places) >= 2:
-        for tag in places[:2]:
-            weights[tag] += 12
+    # places = [place_map[p] for p in survey_answers.get("places", []) if p in place_map]
+    # places = list(dict.fromkeys(places))  # 중복 제거
+    # if len(places) == 1:
+    #     weights[places[0]] += 18
+    # elif len(places) >= 2:
+    #     for tag in places[:2]:
+    #         weights[tag] += 12
+    # if places:
+    #     print(f"Place scores:", {p: 18 if len(places) == 1 else 12 for p in places[:2]})  # 디버깅용
+    # 여기서 cursor 가 total score 변겨 안됨 이슈로 아래로 변경함
+    
+    places = survey_answers.get("places", [])
+    if places:  # Only process if places exist
+        mapped_places = [place_map[p] for p in places if p in place_map]
+        mapped_places = list(dict.fromkeys(mapped_places))  # 중복 제거
+        if len(mapped_places) == 1:
+            weights[mapped_places[0]] += 18
+        elif len(mapped_places) >= 2:
+            for tag in mapped_places[:2]:
+                weights[tag] += 12
+        print(f"Place scores:", {p: 18 if len(mapped_places) == 1 else 12 for p in mapped_places[:2]})  # 디버깅용
 
     # (4) 여행 목적 – 다중 선택 최대2개
     purpose_map = {
@@ -134,15 +187,30 @@ def compute_user_tag_scores(survey_answers):
         "힐링": ["힐링"],
         "탐험": ["자연"]
     }
-    selected = []
-    for p in survey_answers.get("purposes", []):
-        selected.extend(purpose_map.get(p, []))
-    selected = list(dict.fromkeys(selected))
-    if len(selected) == 1:
-        weights[selected[0]] += 12
-    elif len(selected) >= 2:
-        for tag in selected[:2]:
-            weights[tag] += 8
+    # selected = []
+    # for p in survey_answers.get("purposes", []):
+    #     selected.extend(purpose_map.get(p, []))
+    # selected = list(dict.fromkeys(selected))
+    # if len(selected) == 1:
+    #     weights[selected[0]] += 12
+    # elif len(selected) >= 2:
+    #     for tag in selected[:2]:
+    #         weights[tag] += 8
+    # if selected:
+    # 여기서 cursor 가 total score 변겨 안됨 이슈로 아래로 변경함
+    
+    purposes = survey_answers.get("purposes", [])
+    if purposes:  # Only process if purposes exist
+        selected = []
+        for p in purposes:
+            selected.extend(purpose_map.get(p, []))
+        selected = list(dict.fromkeys(selected))  # 중복 제거
+        if len(selected) == 1:
+            weights[selected[0]] += 12
+        elif len(selected) >= 2:
+            for tag in selected[:2]:
+                weights[tag] += 8
+        print(f"Purpose scores:", {p: 12 if len(selected) == 1 else 8 for p in selected[:2]})  # 디버깅용
 
     # (5) 필수 장소 – 필터용 (점수 없음)
     must_go_map = {
@@ -156,6 +224,7 @@ def compute_user_tag_scores(survey_answers):
         if p in must_go_map
     ]
 
+    print("Final weights:", dict(weights))  # 디버깅용
     return dict(weights), filters
 
 

@@ -60,11 +60,12 @@ login_manager.session_protection = 'strong'
 
 # Configure session cookie settings
 app.config.update(
-    SESSION_COOKIE_SECURE=False,  # Changed to False for development
+    SESSION_COOKIE_SECURE=True,  # Keep True for HTTPS
     SESSION_COOKIE_HTTPONLY=True,
-    SESSION_COOKIE_SAMESITE='Lax',
+    SESSION_COOKIE_SAMESITE='None',  # Changed from 'Lax' to 'None' for cross-origin
     SESSION_COOKIE_DOMAIN=None,
     PERMANENT_SESSION_LIFETIME=timedelta(days=7),
+    SESSION_COOKIE_PATH='/',
 )
 
 @login_manager.unauthorized_handler
@@ -81,7 +82,7 @@ def after_request(response):
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization,Accept'
     response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS'
     response.headers['Access-Control-Allow-Credentials'] = 'true'
-    response.headers['Access-Control-Expose-Headers'] = 'Set-Cookie'
+    response.headers['Access-Control-Expose-Headers'] = 'Set-Cookie,Content-Type,Authorization'
     return response
 
 # Naive database setup DB 초기화
@@ -105,6 +106,9 @@ def load_user(user_id):
 app.register_blueprint(survey_bp, url_prefix="/api/survey")
 #app.register_blueprint(google_bp, url_prefix="/api/auth")
 
+# # Initialize database
+# with app.app_context():
+#     init_db_command()
 
 @app.route("/")
 def index():

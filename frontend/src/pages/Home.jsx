@@ -16,7 +16,8 @@ const Home = () => {
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
-          }
+          },
+          mode: 'cors'
         });
         
         const data = await response.json();
@@ -49,7 +50,8 @@ const Home = () => {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
-        }
+        },
+        mode: 'cors'
       });
       
       console.log('Login response status:', loginResponse.status); // Debug log
@@ -77,7 +79,8 @@ const Home = () => {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
-        }
+        },
+        mode: 'cors'
       });
       
       console.log('Survey response status:', surveyResponse.status); // Debug log
@@ -109,7 +112,7 @@ const Home = () => {
                 나를 위한 맞춤형 여행<br />지금 계획해보세요
             </IMGtext>
             <BUTTON 
-            // onClick={handleStartClick}
+             onClick={handleStartClick}
             >시작하기</BUTTON>
         </IMGlist>
 

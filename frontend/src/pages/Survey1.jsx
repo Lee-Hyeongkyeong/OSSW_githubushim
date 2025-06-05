@@ -30,7 +30,7 @@ const Survey1 = () => {
       const selectedStyle = optionMap[selected];
       console.log("Sending survey data:", { travel_style: selectedStyle }); // 디버깅용
 
-      const response = await fetch("https://127.0.0.1:5000/api/survey", {
+      const response = await fetch("https://127.0.0.1:5000/api/survey/", {
         method: "POST",
         credentials: "include",
         headers: {
@@ -40,6 +40,7 @@ const Survey1 = () => {
         body: JSON.stringify({
           travel_style: selectedStyle
         }),
+        mode: 'cors'
       });
 
       // 응답이 JSON인지 확인

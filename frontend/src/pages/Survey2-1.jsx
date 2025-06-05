@@ -5,7 +5,7 @@ import img1 from '../assets/pic/survey-1.png';
 import { Link, useNavigate } from 'react-router-dom';
 
 const images = [
-  { key: "역사", url: "https://images.unsplash.com/photo-1665888661223-2aa11fab76a4?" },
+  { key: "지식 쌓기", url: "https://images.unsplash.com/photo-1665888661223-2aa11fab76a4?" },
   { key: "체험", url: "https://images.unsplash.com/photo-1575780684471-ed79a358de9a?" },
   { key: "힐링", url: "https://images.unsplash.com/photo-1535530992830-e25d07cfa780?" },
   { key: "탐험", url: "https://images.unsplash.com/photo-1567008386823-90c713249ed1?" }
@@ -30,10 +30,10 @@ const Survey2_1 = () => {
   const handleNext = async () => {
     try {
       // 선택한 옵션의 실제 값
-      const selectedMustGo = selected.map(idx => images[idx].key);
+      const selectedPurposes = selected.map(idx => images[idx].key);
       console.log("Sending survey data:", { 
         travel_style: "휴식형", // 이전 단계에서 선택한 값으로 변경 필요
-        must_go: selectedMustGo 
+        purposes: selectedPurposes 
       }); // 디버깅용
 
       const response = await fetch("https://127.0.0.1:5000/api/survey", {
@@ -45,7 +45,7 @@ const Survey2_1 = () => {
         },
         body: JSON.stringify({
           travel_style: "휴식형", // 이전 단계에서 선택한 값으로 변경 필요
-          must_go: selectedMustGo
+          purposes: selectedPurposes
         }),
       });
 

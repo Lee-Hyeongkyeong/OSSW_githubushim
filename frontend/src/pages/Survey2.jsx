@@ -32,10 +32,10 @@ const Survey2 = () => {
   const handleNext = async () => {
     try {
       // 선택한 옵션의 실제 값
-      const selectedPurposes = selected.map(idx => images[idx].key);
+      const selectedPlaces = selected.map(idx => images[idx].key);
       console.log("Sending survey data:", { 
         travel_style: "휴식형", // 이전 단계에서 선택한 값으로 변경 필요
-        purposes: selectedPurposes 
+        places: selectedPlaces 
       }); // 디버깅용
 
       const response = await fetch("https://127.0.0.1:5000/api/survey", {
@@ -47,7 +47,7 @@ const Survey2 = () => {
         },
         body: JSON.stringify({
           travel_style: "휴식형", // 이전 단계에서 선택한 값으로 변경 필요
-          purposes: selectedPurposes
+          places: selectedPlaces
         }),
       });
 
