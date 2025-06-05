@@ -191,13 +191,17 @@ const RecommendationMain = () => {
         onClick={() => {
           if (selected !== null) {
             // 1) 선택된 도시 정보 꺼내기
-            const chosenCity = cityList[selected];
+            const selectedCityName = recommendations[selected].city;
+            const chosenCity = cityList.find((c) => c.key === selectedCityName);
             //    여기엔 key, img, desc 값이 들어 있습니다:
             //    chosenCity = { key:"서울특별시", img:"…", desc:"…" }
 
             // 2) navigate로 Recommendation2 컴포넌트로 이동
             //    state 객체로 선택된 도시 정보를 함께 넘겨 줍니다.
-            navigate("/recommend-abstract", { state: { city: chosenCity } });
+            if (chosenCity) {
+              navigate("/recommend-abstract", { state: { userName: userName, city: chosenCity.key } });
+
+            } 
           }
         }}
       >
