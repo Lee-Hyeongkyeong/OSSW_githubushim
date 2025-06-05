@@ -25,9 +25,6 @@ export default function RecommendationGridMain() {
 
   const navigate = useNavigate();
 
-  /* ─────────────────── ④ 마운트 시 한 번 콘텐츠 요청 ─────────────────── */
-  // useEffect와 setItems, fetch 관련 코드 완전히 삭제
-
   /* ─────────────────── ⑤ 탭 필터링 & 페이지 슬라이스 ─────────────────── */
   const TAG_TO_CATEGORY = {
     "맛집": "식당",
