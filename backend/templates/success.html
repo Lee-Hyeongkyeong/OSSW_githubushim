@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>로그인 성공</title>
+    <style>
+        body {
+            background: #f6f6f6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.13);
+            padding: 36px 42px 30px 42px;
+            min-width: 340px;
+            max-width: 90vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .profile-pic {
+            width: 82px;
+            height: 82px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 18px;
+            border: 3px solid #FFA033;
+        }
+        .welcome {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #222;
+        }
+        .email {
+            font-size: 1.05rem;
+            color: #666;
+            margin-bottom: 18px;
+        }
+    .confirm-btn {
+      background: #FFA033;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 32px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: opacity 0.2s;
+    }
+    .confirm-btn:hover {
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <img class="profile-pic" src="{{ profile_pic }}" alt="Google profile pic">
+    <div class="welcome">{{ name }}님, 어서오세요!</div>
+    <div class="email">이메일: {{ email }}</div>
+    <button class="confirm-btn" onclick="window.close()">확인</button>
+  </div>
+</body>
+</html>
+<script>
+  // 로그인 성공 시 부모 창(메인 창)에 메시지 전송
+  if (window.opener) {
+    window.opener.postMessage({ type: "LOGIN_SUCCESS" }, "*");
+  }
+</script>
+

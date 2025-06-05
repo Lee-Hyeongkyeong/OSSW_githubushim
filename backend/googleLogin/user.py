@@ -1,6 +1,6 @@
 from flask_login import UserMixin
 
-from googleLogin.db import get_db
+from backend.googleLogin.db import get_db
 
 
 class User(UserMixin):

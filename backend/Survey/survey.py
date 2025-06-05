@@ -3,45 +3,82 @@ import json
 from collections import defaultdict
 from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
+import sqlite3
 # from googleLogin.db import save_survey_result   # 실제 DB 저장이 필요하면 주석 해제
 
 survey_bp = Blueprint('survey', __name__)
 
 @survey_bp.route('/api/survey', methods=['POST'])
-@login_required
+# @login_required  # Temporarily commented out for testing
 def submit_survey():
-    data = request.json
+    try:
+        if not request.is_json:
+            return jsonify({"error": "Content-Type must be application/json"}), 400
+            
+        data = request.get_json()
+        print("Received survey data:", data)  # 디버깅용
 
-    # 1) 태그별 가중치 점수 & 필터 태그 계산
-    user_weights, filter_tags = compute_user_tag_scores(data)
-    total_score = sum(user_weights.values())
+        if not data or 'travel_style' not in data:
+            return jsonify({"error": "Invalid data format"}), 400
 
-    # 2) 사용자 프로필 JSON으로 저장
-    profile = {
-        "weights":      user_weights,
-        "filter_tags":  filter_tags,
-        "total_score":  total_score
-    }
-    with open("user_profile.json", "w", encoding="utf-8") as f:
-        json.dump(profile, f, ensure_ascii=False, indent=2)
+        # 1) 태그별 가중치 점수 & 필터 태그 계산
+        user_weights, filter_tags = compute_user_tag_scores(data)
+        total_score = sum(user_weights.values())
 
-    # 3) DB에 저장 (리스트 항목은 문자열로 합쳐서 저장)
-    # save_survey_result(
-    #     user_id=current_user.id,
-    #     travel_style=data.get("travel_style", ""),
-    #     priority=",".join(data.get("priority", [])),
-    #     places=",".join(data.get("places", [])),
-    #     purposes=",".join(data.get("purposes", [])),
-    #     must_go=",".join(data.get("must_go", [])),
-    #     total_score=total_score
-    # )
+        # 2) 사용자 프로필 JSON으로 저장
+        profile = {
+            "weights": user_weights,
+            "filter_tags": filter_tags,
+            "total_score": total_score
+        }
+        with open("user_profile.json", "w", encoding="utf-8") as f:
+            json.dump(profile, f, ensure_ascii=False, indent=2)
 
-    # 4) 응답
-    return jsonify({
-        "message":      "설문 저장 완료",
-        **profile
-    }), 200
+        # 3) DB에 저장 (리스트 항목은 문자열로 합쳐서 저장)
+        # save_survey_result(
+        #     user_id=current_user.id,
+        #     travel_style=data.get("travel_style", ""),
+        #     priority=",".join(data.get("priority", [])),
+        #     places=",".join(data.get("places", [])),
+        #     purposes=",".join(data.get("purposes", [])),
+        #     must_go=",".join(data.get("must_go", [])),
+        #     total_score=total_score
+        # )
 
+        # 4) 응답
+        return jsonify({
+            "status": "success",
+            "message": "설문 저장 완료",
+            "data": profile
+        }), 200
+        
+    except Exception as e:
+        print("Error in submit_survey:", str(e))  # 디버깅용
+        return jsonify({"error": str(e)}), 500
+
+@survey_bp.route('/api/survey/history', methods=['GET'])
+@login_required
+def check_survey_history():
+    try:
+        # DB에서 사용자의 설문 이력 확인
+        conn = sqlite3.connect("sqlite_db")
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            SELECT COUNT(*) FROM survey_results 
+            WHERE user_id = ?
+        """, (current_user.id,))
+        
+        count = cursor.fetchone()[0]
+        conn.close()
+        
+        return jsonify({
+            "hasHistory": count > 0
+        }), 200
+    except Exception as e:
+        return jsonify({
+            "error": str(e)
+        }), 500
 
 def compute_user_tag_scores(survey_answers):
     """
