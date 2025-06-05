@@ -4,11 +4,15 @@ import os
 import sqlite3
 
 from backend.survey.survey    import survey_bp
+from backend.survey.city_recommend     import recommend_cities 
+from backend.survey.content_recommend  import recommend_contents  
 #필요시 API 추가
 #from googleLogin.views import google_bp 
 #from user             import user_bp
 
-from flask import Flask, redirect, request, url_for
+from flask import Flask, redirect, request, url_for, jsonify
+from flask_cors import CORS 
+from pathlib import Path
 from flask_login import (
     LoginManager,
     current_user,
@@ -40,6 +44,12 @@ GOOGLE_DISCOVERY_URL = (
 
 # Flask app setup
 app = Flask(__name__)
+CORS(app, resources={r"/api/*": {"origins": "https://localhost:3001"}}, supports_credentials=True)
+CORS(survey_bp, supports_credentials=True, origins=["https://localhost:3001"])
+app.config.update(
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_SAMESITE="None",
+)
 app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
 
 # User session management setup
@@ -92,15 +102,12 @@ def index():
 
 @app.route("/login")
 def login():
-    # Find out what URL to hit for Google login
     google_provider_cfg = get_google_provider_cfg()
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
 
-    # Use library to construct the request for login and provide
-    # scopes that let you retrieve user's profile from Google
     request_uri = client.prepare_request_uri(
         authorization_endpoint,
-        redirect_uri=request.base_url + "/callback",
+        redirect_uri="https://127.0.0.1:5000/login/callback",
         scope=["openid", "email", "profile"],
     )
     return redirect(request_uri)
@@ -120,7 +127,7 @@ def callback():
     token_url, headers, body = client.prepare_token_request(
         token_endpoint,
         authorization_response=request.url,
-        redirect_url=request.base_url,
+        redirect_url="https://127.0.0.1:5000/login/callback",
         code=code,
     )
     token_response = requests.post(
@@ -178,6 +185,64 @@ def logout():
 def get_google_provider_cfg():
     return requests.get(GOOGLE_DISCOVERY_URL).json()
 
+from flask import jsonify, request
+
+@app.route("/api/recommend/cities", methods=["POST"])
+@login_required              # 설문 저장이 로그인 이후라면 로그인 필요
+def api_recommend_cities():
+    """
+    body : { "top_n": 3 }
+    반환 : { "recommendations": [ {city:"서울특별시", score:123}, … ] }
+    """
+    body   = request.get_json(silent=True) or {}
+    top_n  = int(body.get("top_n", 3))
+
+    # ① 사용자 프로필에서 '가중치가 있는 태그'만 추출
+    prof_path = Path(__file__).resolve().parent / "survey" / "user_profile.json"
+    if not prof_path.exists():
+        return jsonify({"error": "user_profile.json not found"}), 400
+
+    prof          = json.loads(prof_path.read_text(encoding="utf-8"))
+    user_tag_list = [t for t in prof.get("weights", {}) if t != "필터"]
+
+    # ② 추천 실행
+    result = recommend_cities(user_tag_list, top_n)
+    return jsonify({"recommendations": result})
+
+@app.route("/api/recommend/contents", methods=["POST"])
+@login_required
+def api_recommend_contents():
+    """
+    body : { "city": "서울특별시", "top_n": 5 }
+    반환 : { "contents": [ {...콘텐츠객체}, … ] }
+    """
+    body   = request.get_json(silent=True) or {}
+    city   = body.get("city")
+    top_n  = int(body.get("top_n", 5))
+    if not city:
+        return jsonify({"error": "city is required"}), 400
+
+    # 사용자 태그 (필터 제외) 로드
+    prof_path = Path(__file__).resolve().parent / "survey" / "user_profile.json"
+    if not prof_path.exists():
+        return jsonify({"error": "user_profile.json not found"}), 400
+    prof      = json.loads(prof_path.read_text("utf-8"))
+    user_tags = [t for t in prof.get("weights", {}) if t != "필터"]
+
+    # 추천 실행
+    contents = recommend_contents(city, user_tags, top_n)
+    return jsonify({"contents": contents})
+
+@app.after_request
+def after_request(response):
+    origin = request.headers.get('Origin')
+    allowed = ['https://localhost:3001']
+    if origin in allowed:
+        response.headers['Access-Control-Allow-Origin'] = origin
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+    response.headers['Access-Control-Allow-Methods'] = 'GET,POST,OPTIONS'
+    return response
 
 if __name__ == "__main__":
     app.run(ssl_context="adhoc")
