@@ -3,8 +3,12 @@ import json
 import os
 import sqlite3
 from datetime import timedelta
+from dotenv import load_dotenv
 
-from backend.survey.survey import survey_bp
+from backend.survey.survey    import survey_bp
+from backend.recommend.city_routes    import city_recommend_bp
+from backend.recommend.content_routes    import content_recommend_bp
+from backend.recommend.detail_routes    import detail_recommend_bp
 #필요시 API 추가
 #from googleLogin.views import google_bp
 #from user import user_bp
@@ -30,13 +34,13 @@ CORS(
     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 )
 
-from backend.googleLogin.db import init_db_command
+from backend.googleLogin.db import init_db_command, get_db
 from backend.googleLogin.user import User
 
-import os
-from dotenv import load_dotenv
 
 load_dotenv() # .env 파일 읽어오기
+from backend.app.models import db
+from backend.app.routes import chatbot_bp
 
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
@@ -46,11 +50,30 @@ GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 # Configuration
 
 GOOGLE_DISCOVERY_URL = (
-"https://accounts.google.com/.well-known/openid-configuration"
+    "https://accounts.google.com/.well-known/openid-configuration"
 )
 
 # Flask app setup
 app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
+
+
+# ─── 세션 쿠키를 cross-site 요청에서도 전송되도록 만들기 ────────────
+app.config["SESSION_COOKIE_SAMESITE"] = "None"
+app.config["SESSION_COOKIE_SECURE"] = True 
+
+# SQLAlchemy 설정
+basedir = os.path.abspath(os.path.dirname(__file__))
+instance_path = os.path.join(basedir, 'instance')
+if not os.path.exists(instance_path):
+    os.makedirs(instance_path)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(instance_path, "chatbot.db")}'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db.init_app(app)
+
+# 데이터베이스 테이블 생성
+with app.app_context():
+    db.create_all()
 
 # User session management setup
 # https://flask-login.readthedocs.io/en/latest
@@ -85,6 +108,7 @@ def after_request(response):
     response.headers['Access-Control-Expose-Headers'] = 'Set-Cookie,Content-Type,Authorization'
     return response
 
+
 # Naive database setup DB 초기화
 try:
     init_db_command()
@@ -102,9 +126,13 @@ def load_user(user_id):
     return User.get(user_id)
 
 # Blueprint 등록
-#app.register_blueprint(user_bp, url_prefix="/api/user")
+#app.register_blueprint(user_bp,   url_prefix="/api/user")
 app.register_blueprint(survey_bp, url_prefix="/api/survey")
 #app.register_blueprint(google_bp, url_prefix="/api/auth")
+app.register_blueprint(content_recommend_bp)
+app.register_blueprint(city_recommend_bp)
+app.register_blueprint(detail_recommend_bp)
+app.register_blueprint(chatbot_bp, url_prefix="/api/chatbot")
 
 # # Initialize database
 # with app.app_context():
@@ -158,6 +186,15 @@ def login():
         scope=["openid", "email", "profile"],
     )
     return redirect(request_uri)
+
+@app.route("/api/userinfo", methods=["GET"])
+def userinfo():
+    if current_user.is_authenticated:
+        return jsonify({
+            "name": current_user.name
+        })
+    else:
+        return jsonify({"error": "Unauthorized"}), 401
 
 @app.route("/login/callback")
 def callback():

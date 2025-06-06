@@ -1,6 +1,6 @@
 import React, { useState, userNavigate } from 'react';
 import styled from 'styled-components';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import point from '../assets/pic/finalpoint.png';
 import img1 from '../assets/pic/survey-1.png'
 import { Link, useNavigate } from 'react-router-dom';

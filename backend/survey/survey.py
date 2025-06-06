@@ -11,7 +11,10 @@ survey_bp = Blueprint('survey', __name__)
 
 @survey_bp.route('', methods=['POST'])
 @survey_bp.route('/', methods=['POST'])
+@survey_bp.route('/api/survey', methods=['POST'])
+
 # @login_required  # Temporarily commented out for testing
+
 def submit_survey():
     try:
         if not request.is_json:
@@ -57,8 +60,6 @@ def submit_survey():
             "total_score": total_score,
             "survey_data": data  # Store the complete survey data
         }
-        # with open("user_profile.json", "w", encoding="utf-8") as f:
-        #     json.dump(profile, f, ensure_ascii=False, indent=2)
 
         base_dir = os.path.dirname(__file__)               # backend 폴더 경로
         json_path = os.path.join(base_dir, "..", "user_profiles", "user_profile.json")
