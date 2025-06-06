@@ -5,15 +5,6 @@ import re
 import os
 
 BASE_DIR = os.path.dirname(__file__)
-'''
-# ✅ 사용자 프로필 로드
-with open(os.path.join(BASE_DIR, "user_profile.json"), "r", encoding="utf-8") as f:
-    profile = json.load(f)
-    user_tag_scores = profile.get("weights", {})   # 실제 점수 딕셔너리만 꺼내기
-
-
-user_tags = [tag for tag in user_tag_scores if tag != "필터"]
-'''
 # ✅ 태그 포함된 콘텐츠 데이터 로드
 with open(os.path.join(BASE_DIR, "tagged_contents.json"), "r", encoding="utf-8") as f:
     contents = json.load(f)

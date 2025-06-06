@@ -38,33 +38,3 @@ def recommend_for_user():
         "total_requested": top_n,
         "recommendations": formatted
     })
-
-    ''' #DB 이용 전달 방식
-    # 2) 현재 로그인된 사용자의 태그 점수를 DB에서 가져온다
-    user_id = current_user.id
-    db = get_db()  # sqlite3 연결 객체 (예시)
-    cursor = db.execute(
-        "SELECT tag, score FROM user_tag WHERE user_id = ?", (user_id,)
-    )
-    rows = cursor.fetchall()
-    # 예: rows = [("여행", 5), ("맛집", 3), ("쇼핑", 2)]
-    user_tag_scores = { tag: score for (tag, score) in rows }
-
-    # 만약 해당 사용자가 아직 태그 정보가 하나도 없다면, 기본값으로 빈 dict
-    if not user_tag_scores:
-        user_tag_scores = {}
-
-    # 3) 추천 로직 호출
-    recs_tuples = recommend_cities(user_tag_scores, city_tag_data, top_n)
-    # 예시 반환: [("서울특별시", 320), ("부산광역시", 287), …]
-
-    # 4) 튜플 리스트를 JSON 직렬화 가능한 딕셔너리 리스트로 바꾼다
-    formatted = [{"city": city, "score": score} for city, score in recs_tuples]
-
-    # 5) 최종 응답
-    return jsonify({
-        "message": "추천 완료",
-        "total_requested": top_n,
-        "recommendations": formatted
-    })
-'''
