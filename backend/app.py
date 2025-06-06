@@ -4,7 +4,7 @@ import os
 import sqlite3
 from datetime import timedelta
 
-from backend.Survey.survey import survey_bp
+from backend.survey.survey import survey_bp
 #필요시 API 추가
 #from googleLogin.views import google_bp
 #from user import user_bp
