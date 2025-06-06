@@ -1,5 +1,6 @@
 # survey.py
 import json
+import os
 from collections import defaultdict
 from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
@@ -56,7 +57,13 @@ def submit_survey():
             "total_score": total_score,
             "survey_data": data  # Store the complete survey data
         }
-        with open("user_profile.json", "w", encoding="utf-8") as f:
+        # with open("user_profile.json", "w", encoding="utf-8") as f:
+        #     json.dump(profile, f, ensure_ascii=False, indent=2)
+
+        base_dir = os.path.dirname(__file__)               # backend 폴더 경로
+        json_path = os.path.join(base_dir, "..", "user_profiles", "user_profile.json")
+        json_path = os.path.abspath(json_path)  
+        with open(json_path, "w", encoding="utf-8") as f:
             json.dump(profile, f, ensure_ascii=False, indent=2)
 
         # 3) DB에 저장 (리스트 항목은 문자열로 합쳐서 저장)
@@ -119,10 +126,10 @@ def compute_user_tag_scores(survey_answers):
 
     # (1) 여행 스타일 – 30점 (균등)
     style_map = {
-        "인증형": ["트렌디", "랜드마크"],
+        "인증형": ["사진명소", "이색"],
         "맛집탐방형": ["맛집"],
-        "관광형": ["관광지"],
-        "휴식형": ["힐링", "휴양지"]
+        "관광형": ["문화", "역사", "도심"],
+        "휴식형": ["힐링", "자연"]
     }
     style = survey_answers.get("travel_style")
     if style:
@@ -132,9 +139,9 @@ def compute_user_tag_scores(survey_answers):
 
     # (2) 중요 요소 – 1순위 15, 2순위 10, 3순위 5
     priority_map = {
-        "음식점": "맛집",
-        "액티비티": "액티비티",
-        "관광지": "관광지"
+        "음식점": ["맛집"],
+        "액티비티": ["액티비티", "가족"],
+        "관광지": ["문화", "역사", "도심", "힐링", "자연"]
     }
     priority_scores = [15, 10, 5]
     priorities = survey_answers.get("priorities", [])
@@ -156,7 +163,7 @@ def compute_user_tag_scores(survey_answers):
     # (3) 선호 장소 – 다중 선택 최대2개
     place_map = {
         "바다": "자연", "자연": "자연", "도심": "도심",
-        "이색거리": "문화", "역사": "역사", "휴양지": "휴양지"
+        "이색거리": "문화", "역사": "역사", "휴양지": "힐링"
     }
     # places = [place_map[p] for p in survey_answers.get("places", []) if p in place_map]
     # places = list(dict.fromkeys(places))  # 중복 제거
