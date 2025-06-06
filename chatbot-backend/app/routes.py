@@ -14,6 +14,7 @@ chatbot_bp = Blueprint('chatbot', __name__)
 
 # 메모리 기반으로 사용자별 최근 요청 정보 저장
 user_last_requests = {}
+user_sessions = {}  # 사용자 세션 정보 저장
 
 # 캐시 크기 설정
 CACHE_SIZE = 100

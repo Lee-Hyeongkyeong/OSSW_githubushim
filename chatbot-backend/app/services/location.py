@@ -1,7 +1,18 @@
+"""
+위치 관련 서비스 모듈
+- 위치 정보 검증
+- 위치 데이터 처리
+"""
+
 from flask import request, jsonify
 import requests
 
 def get_user_location():
+    """
+    요청에서 사용자 위치 정보 추출
+    - URL 파라미터에서 위도/경도 추출
+    - 위치 정보가 없으면 None 반환
+    """
     if 'latitude' in request.args and 'longitude' in request.args:
         latitude = request.args['latitude']
         longitude = request.args['longitude']
@@ -10,6 +21,12 @@ def get_user_location():
         return None, None
 
 def validate_location(latitude, longitude):
+    """
+    위치 정보 유효성 검증
+    - 위도: -90 ~ 90
+    - 경도: -180 ~ 180
+    - 숫자 형식 검증
+    """
     try:
         lat = float(latitude)
         lon = float(longitude)
@@ -18,7 +35,10 @@ def validate_location(latitude, longitude):
         return False
 
 def get_location_data(latitude, longitude):
-    # Placeholder for future implementation to fetch location data
+    """
+    위치 데이터 포맷팅
+    - 위도/경도 정보를 표준 형식으로 반환
+    """
     return {
         "latitude": latitude,
         "longitude": longitude,
