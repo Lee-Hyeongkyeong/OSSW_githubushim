@@ -31,6 +31,9 @@ from backend.googleLogin.user import User
 import os
 from dotenv import load_dotenv
 
+from backend.app.models import db
+from backend.app.routes import chatbot_bp
+
 load_dotenv()  # .env 파일 읽어오기
 
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
@@ -54,6 +57,20 @@ app.config["SESSION_COOKIE_SECURE"] = True
 
 # ── CORS 설정 (프론트가 React 개발 서버에서 호출할 때 필요) ────────────────
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
+
+# SQLAlchemy 설정
+basedir = os.path.abspath(os.path.dirname(__file__))
+instance_path = os.path.join(basedir, 'instance')
+if not os.path.exists(instance_path):
+    os.makedirs(instance_path)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(instance_path, "chatbot.db")}'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db.init_app(app)
+
+# 데이터베이스 테이블 생성
+with app.app_context():
+    db.create_all()
 
 # User session management setup
 # https://flask-login.readthedocs.io/en/latest
@@ -89,6 +106,7 @@ app.register_blueprint(survey_bp, url_prefix="/api/survey")
 app.register_blueprint(content_recommend_bp)
 app.register_blueprint(city_recommend_bp)
 app.register_blueprint(detail_recommend_bp)
+app.register_blueprint(chatbot_bp, url_prefix="/api/chatbot")
 
 
 @app.route("/")
