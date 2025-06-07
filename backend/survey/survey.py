@@ -1,5 +1,5 @@
 # survey.py
-import json
+import json 
 import os
 from collections import defaultdict
 from flask import Blueprint, request, jsonify
@@ -145,20 +145,13 @@ def compute_user_tag_scores(survey_answers):
     }
     priority_scores = [15, 10, 5]
     priorities = survey_answers.get("priorities", [])
-    #     # for i, choice in enumerate(survey_answers.get("priority", [])[:3]):
-    # for i, choice in enumerate(priorities[:3]):
-    #     tag = priority_map.get(choice)
-    #     if tag:
-    #         weights[tag] += priority_scores[i]
-    # if priorities:
-    # 여기서 cursor 가 total score 변겨 안됨 이슈로 아래로 변경함
     
     if priorities:  # Only process if priorities exist
         for i, choice in enumerate(priorities[:3]):
-            tag = priority_map.get(choice)
-            if tag:
+            tags = priority_map.get(choice, [])
+            for tag in tags:
                 weights[tag] += priority_scores[i]
-        print(f"Priority scores:", {priority_map.get(p, p): priority_scores[i] for i, p in enumerate(priorities[:3])})  # 디버깅용
+        print(f"Priority scores:", {p: priority_scores[i] for i, p in enumerate(priorities[:3])})  # 디버깅용
 
     # (3) 선호 장소 – 다중 선택 최대2개
     place_map = {

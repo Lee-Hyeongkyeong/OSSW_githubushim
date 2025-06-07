@@ -1,13 +1,17 @@
 # Python standard libraries
-import json
+import json 
 import os
 import sqlite3
 from datetime import timedelta
 
-from backend.survey.survey import survey_bp
+from backend.survey.survey    import survey_bp
+from backend.recommend.city_routes    import city_recommend_bp
+from backend.recommend.content_routes    import content_recommend_bp
+from backend.recommend.detail_routes    import detail_recommend_bp
+
 #필요시 API 추가
-#from googleLogin.views import google_bp
-#from user import user_bp
+#from googleLogin.views import google_bp 
+#from user             import user_bp
 
 from flask import Flask, redirect, request, url_for, render_template, jsonify, session
 from flask_login import (
@@ -20,7 +24,9 @@ from flask_login import (
 from oauthlib.oauth2 import WebApplicationClient
 import requests
 from flask_cors import CORS
+# Flask app setup
 app = Flask(__name__)
+app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
 CORS(
     app,
     resources={r"/*": {"origins": ["http://localhost:3000"]}},
@@ -30,7 +36,7 @@ CORS(
     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 )
 
-from backend.googleLogin.db import init_db_command
+from backend.googleLogin.db import init_db_command, get_db
 from backend.googleLogin.user import User
 
 import os
@@ -46,11 +52,14 @@ GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 # Configuration
 
 GOOGLE_DISCOVERY_URL = (
-"https://accounts.google.com/.well-known/openid-configuration"
+    "https://accounts.google.com/.well-known/openid-configuration"
 )
 
-# Flask app setup
-app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
+
+# ─── 세션 쿠키를 cross-site 요청에서도 전송되도록 만들기 ────────────
+app.config["SESSION_COOKIE_SAMESITE"] = "None"
+app.config["SESSION_COOKIE_SECURE"] = True 
+
 
 # User session management setup
 # https://flask-login.readthedocs.io/en/latest
@@ -85,11 +94,12 @@ def after_request(response):
     response.headers['Access-Control-Expose-Headers'] = 'Set-Cookie,Content-Type,Authorization'
     return response
 
+
 # Naive database setup DB 초기화
 try:
     init_db_command()
 except sqlite3.OperationalError:
-# Assume it's already been created
+    # Assume it's already been created
     pass
 
 # OAuth2 client setup
@@ -102,13 +112,13 @@ def load_user(user_id):
     return User.get(user_id)
 
 # Blueprint 등록
-#app.register_blueprint(user_bp, url_prefix="/api/user")
+#app.register_blueprint(user_bp,   url_prefix="/api/user")
 app.register_blueprint(survey_bp, url_prefix="/api/survey")
 #app.register_blueprint(google_bp, url_prefix="/api/auth")
+app.register_blueprint(content_recommend_bp)
+app.register_blueprint(city_recommend_bp)
+app.register_blueprint(detail_recommend_bp)
 
-# # Initialize database
-# with app.app_context():
-#     init_db_command()
 
 @app.route("/")
 def index():
@@ -158,6 +168,15 @@ def login():
         scope=["openid", "email", "profile"],
     )
     return redirect(request_uri)
+
+@app.route("/api/userinfo", methods=["GET"])
+def userinfo():
+    if current_user.is_authenticated:
+        return jsonify({
+            "name": current_user.name
+        })
+    else:
+        return jsonify({"error": "Unauthorized"}), 401
 
 @app.route("/login/callback")
 def callback():

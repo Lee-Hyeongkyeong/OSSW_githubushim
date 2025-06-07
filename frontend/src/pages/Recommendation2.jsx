@@ -1,58 +1,72 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { useLocation, useNavigate } from "react-router-dom";
 
-const CATEGORIES = [
-  {
-    title: '식당',
-    items: [
-      { img: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836', alt: '팬케이크' },
-      { img: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4', alt: '샐러드' },
-      { img: 'https://images.unsplash.com/photo-1550547660-d9450f859349', alt: '버거' },
-      { img: 'https://images.unsplash.com/photo-1523987355523-c7b5b0723c6a', alt: '스테이크' }
-    ]
-  },
-  {
-    title: '액티비티',
-    items: [
-      { img: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb', alt: '서핑' },
-      { img: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca', alt: '감천문화마을' },
-      { img: 'https://images.unsplash.com/photo-1464983953574-0892a716854b', alt: '청춘시장' },
-      { img: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470', alt: '산책' }
-    ]
-  },
-  {
-    title: '축제',
-    items: [
-      { img: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308', alt: '불꽃축제' },
-      { img: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca', alt: '거리공연' },
-      { img: 'https://images.unsplash.com/photo-1464983953574-0892a716854b', alt: '청춘시장' },
-      { img: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb', alt: '서핑' }
-    ]
-  }
-];
+const RecommendationCourseMain = () => {
+  const location = useLocation();
+  const { userName = null, city = null } = location.state || {};
 
-const RecommendationCourseMain = ({ name = '홍길동', city = '부산' }) => {
+  const [group1, setGroup1] = useState([]);
+  const [group2, setGroup2] = useState([]);
+  const [group3, setGroup3] = useState([]);
+
+  const navigate = useNavigate();
+
+  const goToTab = (tabName) => {
+    navigate("/recommend-detail", { state: { selectedTab: tabName, city} });
+  };
+  useEffect(() => {
+    fetch(`https://127.0.0.1:5000/api/recommend/contents?city=${city}`)
+      .then(res => res.json())
+      .then(data => {
+        setGroup1(data.group1.slice(0, 4));
+        setGroup2(data.group2.slice(0, 4));
+        setGroup3(data.group3.slice(0, 4));
+      });
+  }, []);
   return (
     <MainContainer>
       <Title>
-        <span className="name">{name} 님을 위한</span>
+        <span className="name">{userName} 님을 위한</span>
         <br />
         <CityPoint>{city} 필수 방문 코스</CityPoint>
       </Title>
       <SectionList>
-        {CATEGORIES.map((cat, idx) => (
-          <CategoryBox key={cat.title} $isLast={idx === CATEGORIES.length - 1}>
-            <CategoryTitle>{cat.title}</CategoryTitle>
-            <ImageRow>
-              {cat.items.map((item, i) => (
-                <ImageThumb key={i}>
-                  <img src={item.img} alt={item.alt} />
-                </ImageThumb>
-              ))}
-            </ImageRow>
-            <MoreButton>더보기 &gt;</MoreButton>
+          <CategoryBox>
+            <CategoryTitle>식당</CategoryTitle>
+              <ImageRow>
+                {group1.map((item, i) => (
+                  <ImageThumb key={i}>
+                    <img src={item.firstimage} alt={item.title} />
+                  </ImageThumb>
+                ))}
+              </ImageRow>
+            <MoreButton onClick={() => goToTab("맛집")}>더보기 &gt;</MoreButton>
           </CategoryBox>
-        ))}
+
+          <CategoryBox>
+          <CategoryTitle>액티비티</CategoryTitle>
+          <ImageRow>
+            {group2.map((item, i) => (
+              <ImageThumb key={i}>
+                <img src={item.firstimage} alt={item.title} />
+              </ImageThumb>
+            ))}
+          </ImageRow>
+          <MoreButton onClick={() => goToTab("체험 & 액티비티")}>더보기 &gt;</MoreButton>
+        </CategoryBox>
+
+        <CategoryBox>
+          <CategoryTitle>관광</CategoryTitle>
+          <ImageRow>
+            {group3.map((item, i) => (
+              <ImageThumb key={i}>
+                <img src={item.firstimage} alt={item.title} />
+              </ImageThumb>
+            ))}
+          </ImageRow>
+          <MoreButton onClick={() => goToTab("관광")}>더보기 &gt;</MoreButton>
+        </CategoryBox>
       </SectionList>
     </MainContainer>
   );
