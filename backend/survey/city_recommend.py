@@ -21,7 +21,7 @@ with open(os.path.join(BASE_DIR, "tagged_contents.json"), "r", encoding="utf-8")
 def extract_city(addr):
     if not addr:
         return None
-    match = re.findall(r'(?:특별시|광역시|도)?\s*([가-힣]+[시군구])', addr)
+    match = re.search(r'([가-힣]+)(특별시|광역시|도)', addr)
     return match[0] if match else None
 
 # ✅ 도시별 태그 통계 생성
@@ -32,17 +32,41 @@ for item in contents:
     if city and tags:
         city_tag_data[city].update(tags)
 
+print(f"🏙️ 태그가 추출된 도시 수: {len(city_tag_data)}") #디버깅
+
 # ✅ 도시 추천 함수
 def recommend_cities(user_tag_scores, top_n=3):
     scores = {}
     for city, tag_counter in city_tag_data.items():
-        score = sum(
+        # 총 점수 계산 (태그 가중치 × 도시 태그 빈도)
+        total_score = sum(
             tag_counter.get(tag, 0) * user_tag_scores.get(tag, 0)
             for tag in user_tag_scores
             if tag != "필터"
         )
-        scores[city] = score
-    return sorted(scores.items(), key=lambda x: -x[1])[:top_n]
+
+        # 콘텐츠 수 (도시 내 전체 태그 빈도 합)
+        content_count = sum(tag_counter.values())
+
+        # 평균 점수 계산
+        avg_score = total_score / content_count if content_count > 0 else 0
+        scores[city] = avg_score
+
+        # ✅ 디버깅 출력
+        print(f"📊 {city} 점수 계산:")
+        print(f"    ├ 총 점수(raw): {total_score}")
+        print(f"    ├ 콘텐츠 내 태그 총합: {content_count}")
+        print(f"    └ 평균 점수: {avg_score:.4f}")
+
+    # 점수 기준으로 상위 top_n 도시 추출
+    sorted_scores = sorted(scores.items(), key=lambda x: -x[1])[:top_n]
+
+    # ✅ 최종 추천 결과 출력
+    print("\n✅ Top 추천 도시 결과:")
+    for i, (city, score) in enumerate(sorted_scores, 1):
+        print(f"    {i}. {city} – {score:.4f}점")
+
+    return sorted_scores
 
 # 아래는 모듈을 직접 실행할 때만 작동하도록 분리합니다.
 if __name__ == "__main__":
