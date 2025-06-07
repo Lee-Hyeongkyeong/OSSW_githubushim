@@ -157,6 +157,8 @@ const ImageThumb = styled.img`
   display: block;
 `;
 
+<<<<<<< HEAD
+=======
 const ImageTitle = styled.div`
   margin-top: 8px;          
   font-size: 0.9rem;
@@ -178,6 +180,7 @@ const CardWrapper = styled.div`
   align-items: center;
 `;
 
+>>>>>>> 9889f45d5406561f07d6b47d27c2c9002c635c64
 const Pagination = styled.div`
   width: 100%;
   max-width: 700px;

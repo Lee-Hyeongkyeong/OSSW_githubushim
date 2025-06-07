@@ -268,6 +268,16 @@ const FloatingChat = () => {
   return (
     <>
       <FloatingButton onClick={() => setOpen(true)}>
+<<<<<<< HEAD
+        <img src={floatingLogo} alt="chat" />
+      </FloatingButton>
+      {open && (
+        <ChatModalBackdrop onClick={() => setOpen(false)}>
+          <ChatModal onClick={e => e.stopPropagation()}>
+            <ChatHeader>
+              <Avatar src={PARTNER.avatar} alt="상대" />
+              <HeaderName>{PARTNER.name}</HeaderName>
+=======
         <img src={chatbotImg} alt="chat" />
       </FloatingButton>
       {open && (
@@ -276,11 +286,19 @@ const FloatingChat = () => {
             <ChatHeader>
               <Avatar src={chatbotImg} alt="상대" />
               <HeaderName>트립이</HeaderName>
+>>>>>>> 9889f45d5406561f07d6b47d27c2c9002c635c64
               <CloseBtn onClick={() => setOpen(false)}>×</CloseBtn>
             </ChatHeader>
             <ChatBody>
               {messages.map(msg => (
                 <MsgRow key={msg.id} $isUser={msg.user === "user"}>
+<<<<<<< HEAD
+                  {(msg.user === "partner") && <AvatarMini src={PARTNER.avatar} alt="상대" />}
+                  <MsgBubble $isUser={msg.user === "user"}>
+                    {msg.text}
+                  </MsgBubble>
+                  {(msg.user === "user") && <AvatarMini src={USER.avatar} alt="나" />}
+=======
                   {(msg.user === "partner") && <AvatarMini src={chatbotImg} alt="트립이" />}
                   <MsgBubble $isUser={msg.user === "user"}>
                     {msg.text}
@@ -316,18 +334,28 @@ const FloatingChat = () => {
                     )}
                   </MsgBubble>
                   {(msg.user === "user") && <AvatarMini src={chatbotImg} alt="나" />}
+>>>>>>> 9889f45d5406561f07d6b47d27c2c9002c635c64
                 </MsgRow>
               ))}
               <div ref={chatEndRef} />
             </ChatBody>
             <ChatInputBox>
               <ChatInput
+<<<<<<< HEAD
+                placeholder="메시지를 입력하세요"
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+              />
+              <SendBtn onClick={handleSend}>전송</SendBtn>
+=======
                 placeholder={isLoading ? "검색 중..." : "메시지를 입력하세요."}
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => e.key === "Enter" && handleSend()}
               />
               <SendBtn onClick={handleSend} disabled={isLoading} />
+>>>>>>> 9889f45d5406561f07d6b47d27c2c9002c635c64
             </ChatInputBox>
           </ChatModal>
         </ChatModalBackdrop>
@@ -336,11 +364,16 @@ const FloatingChat = () => {
   );
 };
 
+<<<<<<< HEAD
+// --- 스타일드 컴포넌트 ---
+
+=======
 //-------------------------------------------------//
 //-----------------스타일드 컴포넌트-----------------//
 //-------------------------------------------------//
 
 // 챗봇 실행 버튼
+>>>>>>> 9889f45d5406561f07d6b47d27c2c9002c635c64
 const FloatingButton = styled.button`
   position: fixed;
   right: 32px;
@@ -378,7 +411,10 @@ const ChatModalBackdrop = styled.div`
   justify-content: flex-end;
 `;
 
+<<<<<<< HEAD
+=======
 // 메인 챗봇 창
+>>>>>>> 9889f45d5406561f07d6b47d27c2c9002c635c64
 const ChatModal = styled.div`
   background: #fff;
   border-radius: 18px 18px 0 0;
@@ -396,7 +432,10 @@ const ChatModal = styled.div`
   }
 `;
 
+<<<<<<< HEAD
+=======
 // 채팅 창 상단 헤더더
+>>>>>>> 9889f45d5406561f07d6b47d27c2c9002c635c64
 const ChatHeader = styled.div`
   display: flex;
   align-items: center;
@@ -431,7 +470,10 @@ const CloseBtn = styled.button`
   cursor: pointer;
 `;
 
+<<<<<<< HEAD
+=======
 // 채팅 창 본문
+>>>>>>> 9889f45d5406561f07d6b47d27c2c9002c635c64
 const ChatBody = styled.div`
   flex: 1;
   padding: 18px 12px;
@@ -457,6 +499,24 @@ const AvatarMini = styled.img`
 `;
 
 const MsgBubble = styled.div`
+<<<<<<< HEAD
+  background: ${({ $isUser }) => ($isUser ? "#ffa033" : "#fff")};
+  color: ${({ $isUser }) => ($isUser ? "#fff" : "#222")};
+  border-radius: 16px;
+  padding: 10px 16px;
+  font-size: 1.08rem;
+  max-width: 70%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  word-break: break-word;
+`;
+
+const ChatInputBox = styled.div`
+  display: flex;
+  align-items: center;
+  border-top: 1.5px solid #eee;
+  padding: 10px 12px;
+  background: #fff;
+=======
   max-width: 70%;
   padding: 12px 16px;
   border-radius: 18px;
@@ -478,10 +538,37 @@ const ChatInputBox = styled.div`
   background: white;
   border-top: 1px solid #e0e0e0;
   position: relative;
+>>>>>>> 9889f45d5406561f07d6b47d27c2c9002c635c64
 `;
 
 const ChatInput = styled.input`
   flex: 1;
+<<<<<<< HEAD
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 1rem;
+  margin-right: 10px;
+  outline: none;
+`;
+
+const SendBtn = styled.button`
+  background: #ffa033;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1.03rem;
+  padding: 9px 18px;
+  cursor: pointer;
+  transition: background 0.17s;
+  &:hover {
+    background: #ffb755;
+  }
+`;
+
+export default FloatingChat;
+=======
   padding: 12px 16px;
   border: 1px solid #E0E0E0;
   border-radius: 24px;
@@ -627,3 +714,4 @@ const LoadingDots = styled.span`
 `;
 
 export default FloatingChat;
+>>>>>>> 9889f45d5406561f07d6b47d27c2c9002c635c64

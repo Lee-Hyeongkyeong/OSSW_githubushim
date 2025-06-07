@@ -1,22 +1,64 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import img1 from '../assets/pic/survey-1.png'
 
 const SurveyMain = () => {
+  const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // useEffect(() => {
+  //   const checkLoginStatus = async () => {
+  //     try {
+  //       const response = await fetch("https://127.0.0.1:5000/api/auth/check", { 
+  //         credentials: "include",
+  //         method: 'GET',
+  //         headers: {
+  //           'Accept': 'application/json'
+  //         }
+  //       });
+        
+  //       const data = await response.json();
+  //       console.log('Login check response:', data); // 디버깅용
+        
+  //       // 응답 데이터 구조 확인 및 처리
+  //       if (data && typeof data === 'object') {
+  //         setIsLoggedIn(data.loggedIn === true);
+  //       } else {
+  //         console.error('Invalid response format:', data);
+  //         setIsLoggedIn(false);
+  //       }
+  //     } catch (error) {
+  //       console.error('Login check error:', error);
+  //       setIsLoggedIn(false);
+  //     }
+  //   };
+
+  //   checkLoginStatus();
+  // }, []);
+
+  const handleStartSurvey = () => {
+    console.log('Current login state:', isLoggedIn);
+    // if (!isLoggedIn) {
+    //   alert('로그인 후 이용해주세요.');
+    //   return;
+    // }
+    navigate('/survey-step1');
+  };
+
   return (
     <Container>
       <Main>
         <Banner>
           <BannerImg src={img1} alt="배너" />
-            <BannerText>
-                당신의<Highlight>여행 취향</Highlight>을 진단해드립니다.
-            </BannerText>
+          <BannerText>
+            당신의<Highlight>여행 취향</Highlight>을 진단해드립니다.
+          </BannerText>
         </Banner>
         <Description>
           Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
         </Description>
-        <SurveyButton to="/survey-step1">설문 시작</SurveyButton>
+        <SurveyButton onClick={handleStartSurvey}>설문 시작</SurveyButton>
       </Main>
     </Container>
   );
@@ -83,7 +125,7 @@ const Description = styled.div`
   line-height: 1.6;
 `;
 
-const SurveyButton = styled(Link)`
+const SurveyButton = styled.button`
   background-color: #FFA033;
   color: #fff;
   border: none;
@@ -98,7 +140,5 @@ const SurveyButton = styled(Link)`
     opacity: 80%;
   }
 `;
-
-
 
 export default SurveyMain;

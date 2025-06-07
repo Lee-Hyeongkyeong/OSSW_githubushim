@@ -2,39 +2,45 @@
 import json
 import os
 import sqlite3
-import requests
+from datetime import timedelta
+from dotenv import load_dotenv
 
 from backend.survey.survey    import survey_bp
 from backend.recommend.city_routes    import city_recommend_bp
 from backend.recommend.content_routes    import content_recommend_bp
 from backend.recommend.detail_routes    import detail_recommend_bp
-
 #필요시 API 추가
-#from googleLogin.views import google_bp 
-#from user             import user_bp
+#from googleLogin.views import google_bp
+#from user import user_bp
 
-from flask import Flask, redirect, request, url_for, jsonify
-from flask_cors import CORS
+from flask import Flask, redirect, request, url_for, render_template, jsonify, session
 from flask_login import (
     LoginManager,
     current_user,
-    login_required,
-    login_user,
-    logout_user,
+        login_required,
+        login_user,
+        logout_user,
 )
 from oauthlib.oauth2 import WebApplicationClient
 import requests
+from flask_cors import CORS
+app = Flask(__name__)
+CORS(
+    app,
+    resources={r"/*": {"origins": ["http://localhost:3000"]}},
+    supports_credentials=True,
+    allow_headers=["Content-Type", "Authorization", "Accept"],
+    expose_headers=["Content-Type", "Authorization"],
+    methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+)
 
 from backend.googleLogin.db import init_db_command, get_db
 from backend.googleLogin.user import User
 
-import os
-from dotenv import load_dotenv
 
+load_dotenv() # .env 파일 읽어오기
 from backend.app.models import db
 from backend.app.routes import chatbot_bp
-
-load_dotenv()  # .env 파일 읽어오기
 
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
@@ -48,15 +54,12 @@ GOOGLE_DISCOVERY_URL = (
 )
 
 # Flask app setup
-app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
+
 
 # ─── 세션 쿠키를 cross-site 요청에서도 전송되도록 만들기 ────────────
 app.config["SESSION_COOKIE_SAMESITE"] = "None"
 app.config["SESSION_COOKIE_SECURE"] = True 
-
-# ── CORS 설정 (프론트가 React 개발 서버에서 호출할 때 필요) ────────────────
-CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
 
 # SQLAlchemy 설정
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -76,18 +79,41 @@ with app.app_context():
 # https://flask-login.readthedocs.io/en/latest
 login_manager = LoginManager()
 login_manager.init_app(app)
+login_manager.session_protection = 'strong'
 
+# Configure session cookie settings
+app.config.update(
+    SESSION_COOKIE_SECURE=True,  # Keep True for HTTPS
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='None',  # Changed from 'Lax' to 'None' for cross-origin
+    SESSION_COOKIE_DOMAIN=None,
+    PERMANENT_SESSION_LIFETIME=timedelta(days=7),
+    SESSION_COOKIE_PATH='/',
+)
 
 @login_manager.unauthorized_handler
 def unauthorized():
-    return "You must be logged in to access this content.", 403
+    return jsonify({"error": "You must be logged in to access this content."}), 403
+
+@app.after_request
+def after_request(response):
+    # Remove duplicate headers
+    if 'Access-Control-Allow-Origin' in response.headers:
+        del response.headers['Access-Control-Allow-Origin']
+    
+    response.headers['Access-Control-Allow-Origin'] = 'http://localhost:3000'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization,Accept'
+    response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS'
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
+    response.headers['Access-Control-Expose-Headers'] = 'Set-Cookie,Content-Type,Authorization'
+    return response
 
 
 # Naive database setup DB 초기화
 try:
     init_db_command()
 except sqlite3.OperationalError:
-    # Assume it's already been created
+# Assume it's already been created
     pass
 
 # OAuth2 client setup
@@ -108,21 +134,43 @@ app.register_blueprint(city_recommend_bp)
 app.register_blueprint(detail_recommend_bp)
 app.register_blueprint(chatbot_bp, url_prefix="/api/chatbot")
 
+# # Initialize database
+# with app.app_context():
+#     init_db_command()
 
 @app.route("/")
 def index():
     if current_user.is_authenticated:
-        return (
-            "<p>{}님 어서오세요!! 로그인 되었습니다.! 당신의 이메일 : {}</p>"
-            "<div><p>당신의 구글 프로필 사진 : </p>"
-            '<img src="{}" alt="Google profile pic"></img></div>'
-            '<a class="button" href="/logout">로그아웃하기</a>'.format(
-                current_user.name, current_user.email, current_user.profile_pic
-            )
+        return render_template(
+            'success.html',
+            name=current_user.name,
+            email=current_user.email,
+            profile_pic=current_user.profile_pic
         )
     else:
-        return '<a class="button" href="/login">클릭해서 구글 로그인하기</a>'
+        return redirect(url_for("login"))
 
+@app.route("/api/auth/check")
+def auth_check():
+    print("Checking authentication status...")  # Debug log
+    print("Session data:", dict(session))  # Debug log
+    print("Current user:", current_user)  # Debug log
+    print("Session cookie:", request.cookies.get('session'))  # Debug log
+    print("All cookies:", request.cookies)  # Debug log
+    print("Request headers:", dict(request.headers))  # Debug log
+    
+    if current_user.is_authenticated:
+        print(f"User is authenticated: {current_user.name}")  # Debug log
+        return jsonify({
+            "loggedIn": True,
+            "user": {
+                "name": current_user.name,
+                "email": current_user.email,
+                "profile_pic": current_user.profile_pic
+            }
+        })
+    print("User is not authenticated")  # Debug log
+    return jsonify({"loggedIn": False})
 
 @app.route("/login")
 def login():
@@ -204,21 +252,43 @@ def callback():
         User.create(unique_id, users_name, users_email, picture)
 
     # Begin user session by logging the user in
-    login_user(user)
+    login_user(user, remember=True)  # Added remember=True for persistent session
+    print(f"User logged in: {user.name}")  # Debug log
+    print("Session data after login:", dict(session))  # Debug log
+    print("Session cookie after login:", request.cookies.get('session'))  # Debug log
+    print("All cookies after login:", request.cookies)  # Debug log
+    print("Request headers after login:", dict(request.headers))  # Debug log
 
-    # Send user back to homepage
-    return redirect(url_for("index"))
+    # 팝업 창인 경우 success.html을 렌더링
+    return render_template(
+        'success.html',
+        name=users_name,
+        email=users_email,
+        profile_pic=picture
+    )
 
-@app.route("/logout")
-@login_required
+@app.route("/logout", methods=['GET', 'OPTIONS'])
 def logout():
-    logout_user()
-    return redirect(url_for("index"))
+    try:
+        logout_user()
+        return jsonify({
+            "status": "success",
+            "message": "Logged out successfully"
+        }), 200
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 500
 
+# Add a test endpoint to verify CORS is working
+@app.route("/test", methods=['GET', 'OPTIONS'])
+def test():
+    return jsonify({"message": "Test successful"}), 200
 
 def get_google_provider_cfg():
     return requests.get(GOOGLE_DISCOVERY_URL).json()
 
 
 if __name__ == "__main__":
-    app.run(ssl_context="adhoc")
+    app.run(host='127.0.0.1', port=5000, debug=True)
