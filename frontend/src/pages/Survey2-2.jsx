@@ -33,7 +33,7 @@ const Survey2_2 = () => {
         alert("장소를 선택해주세요!");
         return;
     }
-    navigate("/survey-loading");
+    navigate("/recommend-city");
   };
 
 

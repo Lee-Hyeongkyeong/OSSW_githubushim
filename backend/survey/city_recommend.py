@@ -5,9 +5,17 @@ import re
 import os
 
 BASE_DIR = os.path.dirname(__file__)
+
+# ✅ 사용자 프로필 로드
+with open("user_profile.json", "r", encoding="utf-8") as f:
+    user_tag_scores = json.load(f)
+
+user_tags = [tag for tag in user_tag_scores if tag != "필터"]
+
 # ✅ 태그 포함된 콘텐츠 데이터 로드
 with open(os.path.join(BASE_DIR, "tagged_contents.json"), "r", encoding="utf-8") as f:
     contents = json.load(f)
+
 
 # ✅ 주소에서 도시명 추출
 def extract_city(addr):
