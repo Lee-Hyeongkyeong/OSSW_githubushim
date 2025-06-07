@@ -74,7 +74,7 @@ OSSW_githubushim/
 └── .gitignore           # Git 무시 파일 목록
 ```
 
-**백엔드 실행 방법**
+##백엔드 설치 및 실행 방법
 
 1. **가상환경 생성 및 활성화**
    ```sh
@@ -88,33 +88,19 @@ OSSW_githubushim/
 
 2. **의존성 설치**
    ```sh
-   cd backend
    pip install -r requirements.txt
-   cd ..  #프로젝트 루트로 다시 이동해야 됩니당
    ```
 
 3. **환경 변수 설정**
    - `.env` 파일 생성 후 내용 입력(notion에)
      
-4. **DB 초기화**  #필요할 경우에만
-   ```sh
-   flask shell
-   ```
-   ```python
-   from app import create_app
-   app = create_app()
-   from app.models import db
-   with app.app_context():
-       db.create_all()
-   ```
-
-5. **서버 실행**
+4. **서버 실행**
    ```sh
     python wsgi.py
    ```
 
 
-**프론트엔드 실행 방법**
+##프론트엔드 설치 및 실행 방법
 
 1. **의존성 설치**
    ```sh
@@ -146,28 +132,7 @@ OSSW_githubushim/
 - Google Maps API
 - OpenAI API
 
-## 설치 및 실행
 
-### 프론트엔드
-```bash
-cd frontend
-npm install
-npm start
-```
-
-### 백엔드
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-python run.py
-```
-
-## 환경 변수 설정
-`.env` 파일에 다음 환경 변수를 설정해야 합니다:
-- `GOOGLE_MAPS_API_KEY`: Google Maps API 키
-- `OPENAI_API_KEY`: OpenAI API 키
 
 ## 라이선스
 이 프로젝트는 MIT 라이선스를 따릅니다.
