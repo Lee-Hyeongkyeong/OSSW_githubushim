@@ -8,6 +8,7 @@ from backend.survey.survey    import survey_bp
 from backend.recommend.city_routes    import city_recommend_bp
 from backend.recommend.content_routes    import content_recommend_bp
 from backend.recommend.detail_routes    import detail_recommend_bp
+from backend.chatbot.app.routes import chatbot_bp  # chatbot 라우트 추가
 
 #필요시 API 추가
 #from googleLogin.views import google_bp 
@@ -118,6 +119,7 @@ app.register_blueprint(survey_bp, url_prefix="/api/survey")
 app.register_blueprint(content_recommend_bp)
 app.register_blueprint(city_recommend_bp)
 app.register_blueprint(detail_recommend_bp)
+app.register_blueprint(chatbot_bp, url_prefix="/api/chatbot")  # chatbot blueprint 등록
 
 
 @app.route("/")
