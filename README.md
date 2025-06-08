@@ -35,16 +35,10 @@ OSSW_githubushim/
 │   └── package-lock.json    # npm 패키지 잠금 파일
 │
 ├── backend/                 # 백엔드 디렉토리
-│   ├── app/                # 메인 애플리케이션
-│   │   ├── utils/         # 유틸리티 함수
-│   │   ├── services/      # 비즈니스 로직 서비스
-│   │   ├── models.py      # 데이터 모델
-│   │   ├── routes.py      # API 라우트
-│   │   └── __init__.py    # 패키지 초기화
-│   │
 │   ├── googleLogin/        # 구글 로그인 관련
 │   │   ├── db.py          # 데이터베이스 관련
 │   │   ├── user.py        # 사용자 관련
+│   │   ├── requirements.txt # 구글 로그인 관련 의존성 패키지 목록
 │   │   └── __init__.py    # 패키지 초기화
 │   │
 │   ├── recommend/          # 추천 시스템
@@ -64,13 +58,10 @@ OSSW_githubushim/
 │   ├── app.py             # 메인 애플리케이션 파일
 │   ├── run.py             # 실행 파일
 │   ├── schema.sql         # 데이터베이스 스키마
-│   ├── requirements.txt   # Python 의존성
 │   └── __init__.py        # Python 패키지 초기화
 │
 ├── wsgi.py                # WSGI 서버 설정
-├── requirements.txt       # 프로젝트 의존성
 ├── sqlite_db             # SQLite 데이터베이스 파일
-├── user_profile.json     # 사용자 프로필 데이터
 └── .gitignore           # Git 무시 파일 목록
 ```
 
