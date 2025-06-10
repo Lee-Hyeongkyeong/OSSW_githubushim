@@ -1,6 +1,5 @@
 import React from 'react';
 import styled, { keyframes, css } from 'styled-components';
-import bannerImg from '../assets/pic/survey-1.png';
 
 const DOT_COUNT = 12;
 const DOT_COLOR = "#FFA033";
@@ -8,9 +7,9 @@ const DOT_SIZE = 16;
 const DOT_GAP = 16;
 
 
-const TOTAL_DURATION = 4; // seconds
-const WAVE_DURATION = 2.5;  // seconds
-const WAVE_PERCENT = (WAVE_DURATION / TOTAL_DURATION) * 100; // 약 19.35%
+const TOTAL_DURATION = 2; // seconds
+const WAVE_DURATION = 1.5;  // seconds
+const WAVE_PERCENT = (WAVE_DURATION / TOTAL_DURATION) * 100;
 
 const waveUpDown = keyframes`
   0%, 10% {
@@ -57,48 +56,10 @@ const LoadingText = styled.div`
   margin: 50px 0 0 0;
 `;
 
-const Banner = styled.div`
-  width: 100%;
-  height: 180px;
-  position: relative;
-  margin: 0 auto 32px auto;
-  background: #7ad1e6;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-`;
-
-const BannerImg = styled.img`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0.5;
-  position: absolute;
-  top: 0;
-  left: 0;
-`;
-
-const BannerText = styled.div`
-  position: relative;
-  z-index: 2;
-  width: 100%;
-  font-size: 2rem;
-  font-weight: bold;
-  color: #fff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-const Highlight = styled.span`
-  color: #FFA033;
-`;
-
 const Main = styled.main`
   width: 100%;
   max-width: 700px;
-  margin: 0 auto;
+  margin: 50px auto;
   text-align: center;
   padding: 32px 0 0 0;
 `;
@@ -114,18 +75,12 @@ const Container = styled.div`
 const SurveyLoading = () => (
   <Container>
     <Main>
-      <Banner>
-        <BannerImg src={bannerImg} alt="배너" />
-        <BannerText>
-          당신의 <Highlight>여행 취향</Highlight>을 진단해드립니다.
-        </BannerText>
-      </Banner>
       <DotBar>
         {[...Array(DOT_COUNT)].map((_, i) => (
           <Dot key={i} idx={i} />
         ))}
       </DotBar>
-      <LoadingText>취향을 정리하고 있어요</LoadingText>
+      <LoadingText>데이터를 로딩하고 있어요!</LoadingText>
     </Main>
   </Container>
 );

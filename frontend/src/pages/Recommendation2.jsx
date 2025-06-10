@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useLocation, useNavigate } from "react-router-dom";
+import SurveyLoading from './SurveyLoading';
 
 const RecommendationCourseMain = () => {
   const location = useLocation();
@@ -9,21 +10,34 @@ const RecommendationCourseMain = () => {
   const [group1, setGroup1] = useState([]);
   const [group2, setGroup2] = useState([]);
   const [group3, setGroup3] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
 
   const goToTab = (tabName) => {
     navigate("/recommend-detail", { state: { selectedTab: tabName, city} });
   };
+  
   useEffect(() => {
+    setLoading(true);
     fetch(`https://127.0.0.1:5000/api/recommend/contents?city=${city}`)
       .then(res => res.json())
       .then(data => {
         setGroup1(data.group1.slice(0, 4));
         setGroup2(data.group2.slice(0, 4));
         setGroup3(data.group3.slice(0, 4));
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Error fetching recommendations:', error);
+        setLoading(false);
       });
-  }, []);
+  }, [city]);
+
+  if (loading) {
+    return <SurveyLoading />;
+  }
+
   return (
     <MainContainer>
       <Title>

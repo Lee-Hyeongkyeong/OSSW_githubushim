@@ -1,3 +1,8 @@
+// To do list
+// 1. 2025 트렌드 경로 수정: name '회원' 반영되지 않음
+// 2. 2025 트렌드 데이터 fetch: 로그인 안한 상태에서 navigate 이동할 경우 데이터 fetch되지 않음
+// 3. for you 이동 전에 survey history 없으면 이동 막아야 함 (혹은 survey 페이지로 이동)
+
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
@@ -121,20 +126,20 @@ const Home = () => {
         <TRENDlist>
             <TRENDintro>2025년 국내 가장 인기 있는 여행지</TRENDintro>
             <TRENDcardsection>
-                <TRENDcard>
+                <TRENDcard onClick={() => navigate('/recommend-abstract', { state: { name: '회원', city: '제주특별자치도' } })}>
                     <CardImage src="https://img.freepik.com/premium-photo/scenic-view-oilseed-rape-field-against-sky_1048944-28641999.jpg" alt="jeju island" />
-                    <TITLE>제주도</TITLE>
+                    <TITLE>제주특별자치도</TITLE>
                     <TEXT>한라산, 오름, 해변, 올레길, 로컬 맛집 등 자연과 액티비티, 미식이 모두 어우러진 한국 대표 관광지</TEXT>
                 </TRENDcard>
-                <TRENDcard>
-                    <CardImage src="https://www.gtdc.or.kr/dzSmart/upfiles/2024May/20/1715547978_99d6c883f9fd955b595ccee1bcf95dd1.jpg" alt="Gangneung" />
-                    <TITLE>강릉</TITLE>
-                    <TEXT>경포대, 안목커피거리, 해변, 레트로 감성 등으로 젊은 층과 가족 모두에게 인기 많은 동해안 감성 여행의 중심지</TEXT>
+                <TRENDcard onClick={() => navigate('/recommend-abstract', { state: { name: '회원', city: '서울특별시' } })}>
+                    <CardImage src="https://mediahub.seoul.go.kr/uploads/hubTheme/2024/08/fRyAuEGXWZBzZkbzrNPrilMwoWORNeJh.jpg" alt="Seoul" />
+                    <TITLE>서울특별시</TITLE>
+                    <TEXT>경복궁·창덕궁 등 유서 깊은 고궁과 명동, 홍대 등 전통과 현대가 조화를 이루는 문화·예술·쇼핑의 중심지</TEXT>
                 </TRENDcard>
-                <TRENDcard>
-                    <CardImage src="https://www.jeollailbo.com/news/photo/202302/684390_85868_2631.jpg" alt="Jeonju" />
-                    <TITLE>전주</TITLE>
-                    <TEXT>한옥마을, 전주비빔밥, 전통시장 등 한국 전통문화와 미식의 도시. 골목 산책과 야경, 감성 카페 역시 매력 포인트</TEXT>
+                <TRENDcard onClick={() => navigate('/recommend-abstract', { state: { name: '회원', city: '부산광역시' } })}>
+                    <CardImage src="https://www.visitbusan.net/uploadImgs/files/cntnts/20200101173014369" alt="Busan" />
+                    <TITLE>부산광역시</TITLE>
+                    <TEXT> 해운대, 태종대, 부산타워 등 바다 명소, 그리고 활기찬 도시 분위기, 아름다운 야경과 다양한 문화 체험</TEXT>
                 </TRENDcard>
             </TRENDcardsection>
         </TRENDlist>
@@ -235,6 +240,11 @@ const TRENDcard = styled.div`
   text-align: center;
   box-sizing: border-box;
   margin-bottom: 24px;
+  &:hover {
+    border-color: #ffb755;
+    background: #FFF3E0;
+    transform: scale(1.03);
+  }
 `;
 
 

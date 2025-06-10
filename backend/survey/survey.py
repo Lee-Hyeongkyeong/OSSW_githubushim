@@ -25,7 +25,7 @@ def submit_survey():
 
         # Load existing profile if it exists
         try:
-            with open("user_profile.json", "r", encoding="utf-8") as f:
+            with open(json_path, "r", encoding="utf-8") as f:
                 existing_profile = json.load(f)
                 # Merge new data with existing data
                 if 'survey_data' not in existing_profile:

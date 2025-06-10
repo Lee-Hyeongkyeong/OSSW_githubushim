@@ -64,7 +64,6 @@ const RecommendationGridMain = () => {
           </TabItem>
         ))}
       </TabMenu>
-      <SearchAdd>+ 검색 조건 추가</SearchAdd>
       <ImageGrid>
         {paginated.map((item, idx) => (
         <CardWrapper key={idx}>
@@ -100,7 +99,7 @@ const TabMenu = styled.nav`
   display: flex;
   justify-content: center;
   gap: 36px;
-  margin: 32px 0 18px 0;
+  margin: 65px 0;
 `;
 
 const TabItem = styled.button`
@@ -113,16 +112,6 @@ const TabItem = styled.button`
   padding: 6px 0 8px 0;
   cursor: pointer;
   transition: color 0.2s;
-`;
-
-const SearchAdd = styled.div`
-  width: 100%;
-  max-width: 700px;
-  font-size: 1.18rem;
-  margin: 18px 0 36px 0;
-  color: #222;
-  font-weight: 500;
-  text-align: left;
 `;
 
 const ImageGrid = styled.div`
