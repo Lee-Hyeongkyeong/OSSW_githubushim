@@ -141,7 +141,7 @@ def compute_user_tag_scores(survey_answers):
     priority_map = {
         "음식점": ["맛집"],
         "액티비티": ["액티비티", "가족"],
-        "관광지": ["문화", "역사", "도심", "힐링", "자연"]
+        "관광지": ["문화", "역사", "도심", "사진명소", "이색"]
     }
     priority_scores = [15, 10, 5]
     priorities = survey_answers.get("priorities", [])
@@ -183,7 +183,7 @@ def compute_user_tag_scores(survey_answers):
     # (4) 여행 목적 – 다중 선택 최대2개
     purpose_map = {
         "지식 쌓기": ["역사", "문화"],
-        "체험": ["액티비티"],
+        "체험": ["액티비티", "가족"],
         "힐링": ["힐링"],
         "탐험": ["자연"]
     }

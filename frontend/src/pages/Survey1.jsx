@@ -30,6 +30,9 @@ const Survey1 = () => {
       const selectedStyle = optionMap[selected];
       console.log("Sending survey data:", { travel_style: selectedStyle }); // 디버깅용
 
+      // localStorage에 travel_style 저장
+      localStorage.setItem('travel_style', selectedStyle);
+
       const response = await fetch("https://127.0.0.1:5000/api/survey/", {
         method: "POST",
         credentials: "include",

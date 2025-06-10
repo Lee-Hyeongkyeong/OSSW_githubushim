@@ -32,9 +32,14 @@ const Survey1_1 = () => {
       // 선택한 옵션의 실제 값
       const selectedPriority = items.map(item => item.label);
       console.log("Sending survey data:", { 
-        travel_style: "휴식형", // 이전 단계에서 선택한 값으로 변경 필요
         priorities: selectedPriority 
       }); // 디버깅용
+
+      // localStorage에서 travel_style 가져오기
+      const travelStyle = localStorage.getItem('travel_style');
+      if (!travelStyle) {
+        throw new Error('Travel style not found');
+      }
 
       const response = await fetch("https://127.0.0.1:5000/api/survey", {
         method: "POST",
@@ -44,7 +49,7 @@ const Survey1_1 = () => {
           "Accept": "application/json"
         },
         body: JSON.stringify({
-          travel_style: "휴식형", // 이전 단계에서 선택한 값으로 변경 필요
+          travel_style: travelStyle,
           priorities: selectedPriority
         }),
       });

@@ -28,12 +28,45 @@ const Survey2_2 = () => {
 
   const navigate = useNavigate();
   
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!Object.values(selected).some(Boolean)) {
         alert("장소를 선택해주세요!");
         return;
     }
-    navigate("/recommend-city");
+
+    try {
+      // localStorage에서 travel_style 가져오기
+      const travelStyle = localStorage.getItem('travel_style');
+      if (!travelStyle) {
+        throw new Error('Travel style not found');
+      }
+
+      const selectedPlaces = Object.entries(selected)
+        .filter(([_, isSelected]) => isSelected)
+        .map(([key]) => key);
+
+      const response = await fetch("https://127.0.0.1:5000/api/survey", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          travel_style: travelStyle,
+          must_go: selectedPlaces
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit survey');
+      }
+
+      navigate("/recommend-city");
+    } catch (error) {
+      console.error("Error:", error);
+      alert(error.message || '설문 저장 중 오류가 발생했습니다. 다시 시도해주세요.');
+    }
   };
 
 
