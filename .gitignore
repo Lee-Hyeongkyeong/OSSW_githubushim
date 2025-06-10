@@ -48,3 +48,4 @@ node_modules/
 # 제외할 파일들
 backend/googleLogin/sqlite_db
 backend/survey/*.json
+/backend/user_profiles/*.json
