@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
-import img1 from '../assets/pic/home-1.png';
+import ImageSlider from '../components/ImageSlider';
+// import img1 from '../assets/pic/home-1.png';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -105,9 +106,10 @@ const Home = () => {
   return (
     <HOMEpage>
         <IMGlist>
-            <IMGitem>
+            <ImageSlider/>
+            {/* <IMGitem>
                 <img src={img1} alt="travel" />
-            </IMGitem>
+            </IMGitem> */}
             <IMGtext>
                 나를 위한 맞춤형 여행<br />지금 계획해보세요
             </IMGtext>
@@ -117,22 +119,22 @@ const Home = () => {
         </IMGlist>
 
         <TRENDlist>
-            <TRENDintro>회원님을 위한 요즘 트렌드</TRENDintro>
+            <TRENDintro>2025년 국내 가장 인기 있는 여행지</TRENDintro>
             <TRENDcardsection>
                 <TRENDcard>
-                    <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b" alt="포항이당" />
-                    <TITLE>포항이당</TITLE>
-                    <TEXT>포항이당설명설명설명설명설명설명설명설명설명설명설명설명설명</TEXT>
+                    <CardImage src="https://img.freepik.com/premium-photo/scenic-view-oilseed-rape-field-against-sky_1048944-28641999.jpg" alt="jeju island" />
+                    <TITLE>제주도</TITLE>
+                    <TEXT>한라산, 오름, 해변, 올레길, 로컬 맛집 등 자연과 액티비티, 미식이 모두 어우러진 한국 대표 관광지</TEXT>
                 </TRENDcard>
                 <TRENDcard>
-                    <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e" alt="부산이당" />
-                    <TITLE>부산이당</TITLE>
-                    <TEXT>부산이당설명설명설명설명설명설명설명설명설명설명설명설명설명</TEXT>
+                    <CardImage src="https://www.gtdc.or.kr/dzSmart/upfiles/2024May/20/1715547978_99d6c883f9fd955b595ccee1bcf95dd1.jpg" alt="Gangneung" />
+                    <TITLE>강릉</TITLE>
+                    <TEXT>경포대, 안목커피거리, 해변, 레트로 감성 등으로 젊은 층과 가족 모두에게 인기 많은 동해안 감성 여행의 중심지</TEXT>
                 </TRENDcard>
                 <TRENDcard>
-                    <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca" alt="전주당" />
-                    <TITLE>전주당</TITLE>
-                    <TEXT>전주당설명설명설명설명설명설명설명설명설명설명설명설명설명</TEXT>
+                    <CardImage src="https://www.jeollailbo.com/news/photo/202302/684390_85868_2631.jpg" alt="Jeonju" />
+                    <TITLE>전주</TITLE>
+                    <TEXT>한옥마을, 전주비빔밥, 전통시장 등 한국 전통문화와 미식의 도시. 골목 산책과 야경, 감성 카페 역시 매력 포인트</TEXT>
                 </TRENDcard>
             </TRENDcardsection>
         </TRENDlist>
@@ -144,7 +146,7 @@ const Home = () => {
           나에게 맞는 도시와 방문지를 확인해보세요!
         </SUB>
         <BUTTON 
-        // onClick={handleStartClick}
+        onClick={handleStartClick}
         >시작하기</BUTTON>
       </TRENDtext>
     </HOMEpage>
@@ -196,6 +198,9 @@ const BUTTON = styled.button`
   font-size: 1.1rem;
   cursor: pointer;
   margin: 20px 0;
+  &:hover {
+    opacity: 50%;
+  }
 `;
 
 const TRENDlist = styled.div`
@@ -216,20 +221,35 @@ const TRENDcardsection = styled.div`
   display: flex;
   justify-content: center;
   gap: 32px;
+  flex-wrap: wrap;
 `;
 
 const TRENDcard = styled.div`
   background-color: #ffffff;
   border-radius: 16px;
   padding: 16px;
-  width: 200px;
+  width: 220px;
+  min-width: 180px;
+  max-width: 260px;
+  flex: 1 1 220px;
   text-align: center;
-  img {
-    width: 100%;
-    border-radius: 8px;
-    margin-bottom: 12px;
+  box-sizing: border-box;
+  margin-bottom: 24px;
+`;
+
+
+const CardImage = styled.img`
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  background: #eee;
+  @media (max-width: 768px) {
+    height: 100px;
   }
 `;
+
 
 const TITLE = styled.div`
   font-weight: bold;
