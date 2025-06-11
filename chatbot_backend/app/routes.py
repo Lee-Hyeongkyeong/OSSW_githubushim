@@ -10,7 +10,7 @@ import math
 from functools import lru_cache
 from sqlalchemy import func
 
-chatbot_bp = Blueprint('chatbot', __name__)
+chatbot_bp = Blueprint('chatbot', __name__, url_prefix='/api/chatbot')
 
 # 메모리 기반으로 사용자별 최근 요청 정보 저장
 user_last_requests = {}
@@ -215,3 +215,15 @@ def reset_session():
     if user_id in user_sessions:
         del user_sessions[user_id]
     return jsonify({'message': '세션 초기화 완료'})
+
+@chatbot_bp.route('/health', methods=['GET'])
+def health_check():
+    """
+    간단한 상태 확인용 엔드포인트입니다.
+    nginx → Flask 프록시가 제대로 연결되었는지 확인할 때 사용하세요.
+    """
+    return jsonify({
+        'status': 'ok',
+        'service': 'chatbot-api',
+        'timestamp': int(time.time() * 1000)
+    })

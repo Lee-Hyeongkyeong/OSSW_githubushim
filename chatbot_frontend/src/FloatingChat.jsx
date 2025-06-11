@@ -14,7 +14,7 @@ import axios from "axios";
 import chatbotImg from "./assets/pic/chatbot.png";
 
 // axios 기본 설정
-axios.defaults.baseURL = 'http://localhost:5000';
+axios.defaults.baseURL = 'https://localhost/api/chatbot';
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 axios.defaults.headers.common['X-USER-ID'] = 'test-user-id';
 
@@ -213,7 +213,7 @@ const FloatingChat = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/chat",
+        "/chat",
         {
           latitude: location.latitude,
           longitude: location.longitude,
