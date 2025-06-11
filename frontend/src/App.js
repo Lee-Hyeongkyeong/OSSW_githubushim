@@ -14,6 +14,8 @@ import SurveyLoading from './pages/SurveyLoading';
 import Recommendation from './pages/Recommendation1';
 import Recommendation2 from './pages/Recommendation2';
 import Recommendation3 from './pages/Recommendation3';
+import Recommendation4 from './pages/Recommendation4';
+import Recommendation5 from './pages/Recommendation5';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import FloatingChat from './components/FloatingChat';
@@ -37,6 +39,8 @@ const App = () => {
           <Route path='/recommend-city' element={<Recommendation />} />
           <Route path='/recommend-abstract' element={<Recommendation2 />} />
           <Route path='/recommend-detail' element={<Recommendation3 />} />
+          <Route path='/recommend-best-abstract' element={<Recommendation4 />} />
+          <Route path='/recommend-best-detail' element={<Recommendation5 />} />
         </Routes>
         <FloatingChat />
         <Footer />

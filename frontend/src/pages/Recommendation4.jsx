@@ -20,10 +20,7 @@ const RecommendationCourseMain = () => {
   
   useEffect(() => {
     setLoading(true);
-    fetch(`https://127.0.0.1:5000/api/recommend/contents?city=${city}`, {
-      credentials: "include",  // 로그인 세션 쿠키가 필요하다면 추가
-
-    })
+    fetch(`https://127.0.0.1:5000/api/recommend/contents?city=${city}`)
       .then(res => res.json())
       .then(data => {
         setGroup1(data.group1.slice(0, 4));

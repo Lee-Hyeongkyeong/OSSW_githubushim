@@ -9,9 +9,17 @@ import sqlite3
 
 survey_bp = Blueprint('survey', __name__)
 
+# 공통: 프로필 디렉토리
+BASE_DIR = os.path.dirname(__file__)
+PROFILES_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "user_profiles"))
+os.makedirs(PROFILES_DIR, exist_ok=True)  # 디렉토리 없으면 생성
+
+def profile_path_for(user_id: int) -> str:
+    return os.path.join(PROFILES_DIR, f"{user_id}.json")
+
 @survey_bp.route('', methods=['POST'])
 @survey_bp.route('/', methods=['POST'])
-# @login_required  # Temporarily commented out for testing
+@login_required 
 def submit_survey():
     try:
         if not request.is_json:
@@ -20,13 +28,17 @@ def submit_survey():
         data = request.get_json()
         print("Received survey data:", data)  # 디버깅용
 
+        user_file = profile_path_for(current_user.id)
+        print("▶▶▶ Writing survey profile to:", user_file)
+
         if not data or 'travel_style' not in data:
             return jsonify({"error": "Invalid data format"}), 400
 
         # Load existing profile if it exists
         try:
-            with open(json_path, "r", encoding="utf-8") as f:
+            with open(user_file, "r", encoding="utf-8") as f:
                 existing_profile = json.load(f)
+                existing_profile.setdefault('survey_data', {})
                 # Merge new data with existing data
                 if 'survey_data' not in existing_profile:
                     existing_profile['survey_data'] = {}
@@ -57,27 +69,11 @@ def submit_survey():
             "total_score": total_score,
             "survey_data": data  # Store the complete survey data
         }
-        # with open("user_profile.json", "w", encoding="utf-8") as f:
-        #     json.dump(profile, f, ensure_ascii=False, indent=2)
-
-        base_dir = os.path.dirname(__file__)               # backend 폴더 경로
-        json_path = os.path.join(base_dir, "..", "user_profiles", "user_profile.json")
-        json_path = os.path.abspath(json_path)  
-        with open(json_path, "w", encoding="utf-8") as f:
+          
+        with open(user_file, "w", encoding="utf-8") as f:
             json.dump(profile, f, ensure_ascii=False, indent=2)
 
-        # 3) DB에 저장 (리스트 항목은 문자열로 합쳐서 저장)
-        # save_survey_result(
-        #     user_id=current_user.id,
-        #     travel_style=data.get("travel_style", ""),
-        #     priority=",".join(data.get("priority", [])),
-        #     places=",".join(data.get("places", [])),
-        #     purposes=",".join(data.get("purposes", [])),
-        #     must_go=",".join(data.get("must_go", [])),
-        #     total_score=total_score
-        # )
-
-        # 4) 응답
+        # 3) 응답
         return jsonify({
             "status": "success",
             "message": "설문 저장 완료",
@@ -91,26 +87,9 @@ def submit_survey():
 @survey_bp.route('/history', methods=['GET'])
 @login_required
 def check_survey_history():
-    try:
-        # DB에서 사용자의 설문 이력 확인
-        conn = sqlite3.connect("sqlite_db")
-        cursor = conn.cursor()
-        
-        cursor.execute("""
-            SELECT COUNT(*) FROM survey_results 
-            WHERE user_id = ?
-        """, (current_user.id,))
-        
-        count = cursor.fetchone()[0]
-        conn.close()
-        
-        return jsonify({
-            "hasHistory": count > 0
-        }), 200
-    except Exception as e:
-        return jsonify({
-            "error": str(e)
-        }), 500
+    user_file = profile_path_for(current_user.id)
+    has_history = os.path.isfile(user_file)
+    return jsonify({"hasHistory": has_history}), 200
 
 def compute_user_tag_scores(survey_answers):
     """

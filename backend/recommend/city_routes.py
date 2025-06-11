@@ -1,7 +1,7 @@
 import os
 import json
 from flask import Blueprint, request, jsonify
-from flask_login import login_required
+from flask_login import login_required, current_user
 from backend.survey.city_recommend import recommend_cities  # 추천 로직 함수가 따로 있다면
 
 city_recommend_bp = Blueprint("city_recommend", __name__)
@@ -15,15 +15,24 @@ def recommend_for_user():
 
     # 2) DB 대신 JSON 파일에서 user_tag_scores 읽어오기
     base_dir = os.path.dirname(__file__)               # backend 폴더 경로
-    json_path = os.path.join(base_dir, "..", "user_profiles", "user_profile.json")
-    json_path = os.path.abspath(json_path)    
+    # profiles 디렉토리, 폴더가 없으면 자동 생성
+    profiles_dir = os.path.abspath(os.path.join(base_dir, "..", "user_profiles"))
+    os.makedirs(profiles_dir, exist_ok=True)
+
+    # ① 사용자 파일: user_profiles/{user_id}.json
+    user_file    = os.path.join(profiles_dir, f"{current_user.id}.json")
+    # ② 기본 파일: backend/survey/user_profile.json
+    default_file = os.path.abspath(os.path.join(base_dir, "user_profile.json"))
+    # ③ 우선순위: 사용자 파일 → 기본 파일
+    json_path    = user_file if os.path.isfile(user_file) else default_file
+
+    # 3) JSON 열어서 weights 추출 (파일 없거나 파싱 에러 시 빈 dict)
     try:
         with open(json_path, "r", encoding="utf-8") as f:
-            profile = json.load(f)
+            profile         = json.load(f)
             user_tag_scores = profile.get("weights", {})
-    except FileNotFoundError:
-        # 파일이 없으면 빈 dict로 처리
-        user_profile = {}
+    except Exception:
+        user_tag_scores = {}
 
     # 3) 추천 로직 호출 (city_tag_data는 모듈 로드 시 이미 계산됨)
     recs_tuples = recommend_cities(user_tag_scores, top_n)
