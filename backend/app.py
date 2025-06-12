@@ -4,43 +4,36 @@ import os
 import sqlite3
 from datetime import timedelta
 
+#필요시 API 추가
+from flask import Flask, redirect, request, url_for, render_template, jsonify, session
+from flask_login import LoginManager, current_user, login_user, logout_user
+from flask_cors import CORS
+
+from oauthlib.oauth2 import WebApplicationClient
+import requests
+from dotenv import load_dotenv
+
+from backend.chatbot import create_app as create_chatbot_app
 from backend.survey.survey    import survey_bp
 from backend.recommend.city_routes    import city_recommend_bp
 from backend.recommend.content_routes    import content_recommend_bp
 from backend.recommend.detail_routes    import detail_recommend_bp
+from backend.googleLogin.db import init_db_command
+from backend.googleLogin.user import User
 
-#필요시 API 추가
-#from googleLogin.views import google_bp 
-#from user             import user_bp
-
-from flask import Flask, redirect, request, url_for, render_template, jsonify, session
-from flask_login import (
-    LoginManager,
-    current_user,
-        login_required,
-        login_user,
-        logout_user,
-)
-from oauthlib.oauth2 import WebApplicationClient
-import requests
-from flask_cors import CORS
-# Flask app setup
+# (1) 메인 앱 생성
 app = Flask(__name__)
+CORS(app)  # 모든 도메인 허용 (개발용)
+
 app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
 CORS(
     app,
     resources={r"/*": {"origins": ["http://localhost:3000"]}},
     supports_credentials=True,
-    allow_headers=["Content-Type", "Authorization", "Accept"],
-    expose_headers=["Content-Type", "Authorization"],
+    allow_headers=["Content-Type", "Authorization", "Accept", "X-User-ID"],
+    expose_headers=["Content-Type", "Authorization", "X-User-ID"],
     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 )
-
-from backend.googleLogin.db import init_db_command, get_db
-from backend.googleLogin.user import User
-
-import os
-from dotenv import load_dotenv
 
 load_dotenv() # .env 파일 읽어오기
 
@@ -77,6 +70,10 @@ app.config.update(
     SESSION_COOKIE_PATH='/',
 )
 
+# (2) 챗봇만 별도 팩토리로 초기화
+chatbot_app = create_chatbot_app()
+
+
 @login_manager.unauthorized_handler
 def unauthorized():
     return jsonify({"error": "You must be logged in to access this content."}), 403
@@ -88,7 +85,7 @@ def after_request(response):
         del response.headers['Access-Control-Allow-Origin']
     
     response.headers['Access-Control-Allow-Origin'] = 'http://localhost:3000'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization,Accept'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization,Accept,X-User-ID'
     response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS'
     response.headers['Access-Control-Allow-Credentials'] = 'true'
     response.headers['Access-Control-Expose-Headers'] = 'Set-Cookie,Content-Type,Authorization'
@@ -118,7 +115,8 @@ app.register_blueprint(survey_bp, url_prefix="/api/survey")
 app.register_blueprint(content_recommend_bp)
 app.register_blueprint(city_recommend_bp)
 app.register_blueprint(detail_recommend_bp)
-
+# (3) 팩토리에서 만든 챗봇 Blueprint를 메인 앱에 붙이기
+app.register_blueprint(chatbot_app.blueprints['chatbot'], url_prefix="/api/chatbot")
 
 @app.route("/")
 def index():
@@ -164,7 +162,7 @@ def login():
     # scopes that let you retrieve user's profile from Google
     request_uri = client.prepare_request_uri(
         authorization_endpoint,
-        redirect_uri=request.base_url + "/callback",
+        redirect_uri="https://127.0.0.1:5000/login/callback",
         scope=["openid", "email", "profile"],
     )
     return redirect(request_uri)
@@ -192,7 +190,7 @@ def callback():
     token_url, headers, body = client.prepare_token_request(
         token_endpoint,
         authorization_response=request.url,
-        redirect_url=request.base_url,
+        redirect_url="https://127.0.0.1:5000/",
         code=code,
     )
     token_response = requests.post(
