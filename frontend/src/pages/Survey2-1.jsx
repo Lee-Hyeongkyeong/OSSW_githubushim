@@ -7,7 +7,7 @@ import { Link, useNavigate } from 'react-router-dom';
 const images = [
   { key: "지식 쌓기", url: "https://images.unsplash.com/photo-1665888661223-2aa11fab76a4?" },
   { key: "체험", url: "https://images.unsplash.com/photo-1575780684471-ed79a358de9a?" },
-  { key: "힐링", url: "https://images.unsplash.com/photo-1535530992830-e25d07cfa780?" },
+  { key: "힐링", url: "https://images.unsplash.com/photo-1633712132667-663554221b91?" },
   { key: "탐험", url: "https://images.unsplash.com/photo-1567008386823-90c713249ed1?" }
 ];
 

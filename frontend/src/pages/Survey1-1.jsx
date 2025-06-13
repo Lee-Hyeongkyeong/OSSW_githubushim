@@ -88,7 +88,7 @@ const Survey1_1 = () => {
       </Banner>
       <StepRow>
         <StepTitle>
-          Step 2
+          Step 1
           <StepDotBar>
             <DotProgress style={{ width: `${progress}%` }} />
             <DotBg />

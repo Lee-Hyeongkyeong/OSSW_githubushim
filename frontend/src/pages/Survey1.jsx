@@ -6,32 +6,24 @@ import img1 from '../assets/pic/survey-1.png'
 
 const question = 'Q. 당신의 여행 스타일은 무엇인가요?';
 const options = [
-  '인증형',
-  '맛집 탐방형',
-  '관광형',
-  '휴식형'
+  { displayText: '남는 건 사진 뿐! 여행에서 인생샷 남겨야지 📸', value: '인증형' },
+  { displayText: '여기 맛집 가서 이건 꼭 먹어 보고 가야해! 🍲', value: '맛집탐방형' },
+  { displayText: '여행 왔으면 여기 있는 관광지는 다 들러봐야지! 🚌', value: '관광형' },
+  { displayText: '멍 때리고, 자연 즐기고, 힐링하고 싶어.. 🌿', value: '휴식형' }
 ];
 
 const Survey1 = () => {
   const [selected, setSelected] = useState(0);
   const navigate = useNavigate();
 
-  // 옵션 key와 백엔드 매핑 (survey.py style_map 참고)
-  const optionMap = [
-    "인증형",
-    "맛집탐방형",
-    "관광형",
-    "휴식형"
-  ];
-
   const handleNext = async () => {
     try {
       // 선택한 옵션의 실제 값
-      const selectedStyle = optionMap[selected];
-      console.log("Sending survey data:", { travel_style: selectedStyle }); // 디버깅용
+      const selectedStyle = options[selected].value;
+      console.log("Sending survey data:", { travel_style_1: selectedStyle }); // 디버깅용
 
-      // localStorage에 travel_style 저장
-      localStorage.setItem('travel_style', selectedStyle);
+      // localStorage에 travel_style_1 저장
+      localStorage.setItem('travel_style_1', selectedStyle);
 
       const response = await fetch("https://127.0.0.1:5000/api/survey/", {
         method: "POST",
@@ -41,7 +33,7 @@ const Survey1 = () => {
           "Accept": "application/json"
         },
         body: JSON.stringify({
-          travel_style: selectedStyle
+          travel_style_1: selectedStyle
         }),
         mode: 'cors'
       });
@@ -101,7 +93,7 @@ const Survey1 = () => {
               <RadioCircle selected={selected === idx}>
                 {selected === idx && <RadioDot />}
               </RadioCircle>
-              <OptionText selected={selected === idx}>{opt}</OptionText>
+              <OptionText selected={selected === idx}>{opt.displayText}</OptionText>
             </Option>
           ))}
         </OptionsList>

@@ -5,9 +5,9 @@ import img1 from '../assets/pic/survey-1.png';
 import { Link, useNavigate } from 'react-router-dom';
 
 const options = [
-  { key: '스테디셀러', label: '스테디셀러' },
-  { key: '트렌디', label: '트렌디' },
-  { key: '홍대병', label: '홍대병 스팟' }
+  { key: '스테디셀러', label: '언제나 핫한 여행지' },
+  { key: '트렌디', label: '요즘 핫한 여행지' },
+  { key: '홍대병', label: '아무도 모르는 여행지' }
 ];
 
 const Survey2_2 = () => {

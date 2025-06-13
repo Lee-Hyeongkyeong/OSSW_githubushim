@@ -60,13 +60,29 @@ GOOGLE_DISCOVERY_URL = (
 app.config["SESSION_COOKIE_SAMESITE"] = "None"
 app.config["SESSION_COOKIE_SECURE"] = True 
 
+# # 변경 전
+# login_manager = LoginManager()
+# login_manager.init_app(app)
+# login_manager.session_protection = 'strong'
 
 # User session management setup
 # https://flask-login.readthedocs.io/en/latest
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.session_protection = 'strong'
+login_manager.refresh_view = 'login'  # Add this to redirect to login when session expires
+login_manager.needs_refresh_message = "Please log in again to access this page."
+login_manager.needs_refresh_message_category = "info"
 
+# # 변경 전
+# app.config.update(
+#     SESSION_COOKIE_SECURE=True,
+#     SESSION_COOKIE_HTTPONLY=True,
+#     SESSION_COOKIE_SAMESITE='None',
+#     SESSION_COOKIE_DOMAIN=None,
+#     PERMANENT_SESSION_LIFETIME=timedelta(days=7),
+#     SESSION_COOKIE_PATH='/',
+# )
 # Configure session cookie settings
 app.config.update(
     SESSION_COOKIE_SECURE=True,  # Keep True for HTTPS
@@ -75,6 +91,13 @@ app.config.update(
     SESSION_COOKIE_DOMAIN=None,
     PERMANENT_SESSION_LIFETIME=timedelta(days=7),
     SESSION_COOKIE_PATH='/',
+    SESSION_REFRESH_EACH_REQUEST=True,  # Add this to refresh session on each request
+    REMEMBER_COOKIE_DURATION=timedelta(days=7),  # Add this to set remember cookie duration
+    REMEMBER_COOKIE_SECURE=True,  # Add this to make remember cookie secure
+    REMEMBER_COOKIE_HTTPONLY=True,  # Add this to make remember cookie httpOnly
+    REMEMBER_COOKIE_SAMESITE='None',  # Add this to make remember cookie work with cross-origin
+    REMEMBER_COOKIE_DOMAIN=None,  # Add this to ensure remember cookie uses same domain
+    REMEMBER_COOKIE_PATH='/',      # Add this to ensure remember cookie uses same path
 )
 
 @login_manager.unauthorized_handler
@@ -109,7 +132,10 @@ client = WebApplicationClient(GOOGLE_CLIENT_ID)
 # Flask-Login helper to retrieve a user from our db
 @login_manager.user_loader
 def load_user(user_id):
-    return User.get(user_id)
+    print(f"Loading user with ID: {user_id}")  # Debug log
+    user = User.get(user_id)
+    print(f"Loaded user: {user}")  # Debug log
+    return user
 
 # Blueprint 등록
 #app.register_blueprint(user_bp,   url_prefix="/api/user")
@@ -249,15 +275,59 @@ def callback():
         profile_pic=picture
     )
 
+# @app.route("/logout", methods=['GET', 'OPTIONS'])
+# def logout():
+#     try:
+#         logout_user()
+#         return jsonify({
+#             "status": "success",
+#             "message": "Logged out successfully"
+#         }), 200
+#     except Exception as e:
+#         return jsonify({
+#             "status": "error",
+#             "message": str(e)
+#         }), 500
+
 @app.route("/logout", methods=['GET', 'OPTIONS'])
 def logout():
     try:
+        print("Logging out user...")  # Debug log
+        print("Session before logout:", dict(session))  # Debug log
+        print("Cookies before logout:", request.cookies)  # Debug log
+        
         logout_user()
-        return jsonify({
+        session.clear()  # Clear the session completely
+        
+        # Create response with cleared cookies
+        response = jsonify({
             "status": "success",
             "message": "Logged out successfully"
-        }), 200
+        })
+        
+        # Add CORS headers for cookie deletion
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+        response.headers['Access-Control-Allow-Origin'] = 'http://localhost:3000'
+        
+        # Clear both session and remember_token cookies with proper settings
+        for cookie_name in ['session', 'remember_token']:
+            response.set_cookie(
+                cookie_name,
+                value='',
+                expires=0,
+                path='/',
+                domain=None,
+                secure=True,
+                httponly=True,
+                samesite='None'
+            )
+        
+        print("Session after logout:", dict(session))  # Debug log
+        print("Response headers:", dict(response.headers))  # Debug log
+        
+        return response
     except Exception as e:
+        print(f"Error during logout: {str(e)}")  # Debug log
         return jsonify({
             "status": "error",
             "message": str(e)

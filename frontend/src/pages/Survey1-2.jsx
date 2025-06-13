@@ -4,13 +4,18 @@ import point from '../assets/pic/finalpoint.png';
 import img1 from '../assets/pic/survey-1.png'
 import { Link, useNavigate } from 'react-router-dom';
 
-const question = 'Q. 여행에서 가장 중요한 것은 무엇인가요?';
+const question = 'Q. 여행지에서 가장 먼저 찾아보는 것은 무엇인가요?';
 const options = [
-  '맛집 탐방',
-  '자연 경관',
-  '액티비티',
-  '휴식과 힐링'
+  { displayText: '유명 관광지와 명소', value: '관광형' },
+  { displayText: '숨은 맛집과 카페', value: '맛집탐방형' },
+  { displayText: '현지 시장과 쇼핑', value: '쇼핑형' },
+  { displayText: '공원과 산책로', value: '휴식형' }
 ];
+
+// 1. 유명 관광지와 명소
+// 2. 숨은 맛집과 카페
+// 3. 현지 시장과 쇼핑
+// 4. 공원과 산책로
 
 const Survey1_2 = () => {
   const [selected, setSelected] = useState([]);
@@ -19,31 +24,26 @@ const Survey1_2 = () => {
   // 진행률
   const progress = 40;
 
-  const handleSelect = (idx) => {
-    if (selected.includes(idx)) {
-      setSelected(selected.filter(i => i !== idx));
-    } else {
-      if (selected.length < 2) {  // 최대 2개까지 선택 가능
-        setSelected([...selected, idx]);
-      }
-    }
-  };
+  // const handleSelect = (idx) => {
+  //   if (selected.includes(idx)) {
+  //     setSelected(selected.filter(i => i !== idx));
+  //   } else {
+  //     if (selected.length < 2) {  // 최대 2개까지 선택 가능
+  //       setSelected([...selected, idx]);
+  //     }
+  //   }
+  // };
 
   const handleNext = async () => {
     try {
       // 선택한 옵션의 실제 값
-      const selectedPlaces = selected.map(idx => options[idx]);
-      console.log("Sending survey data:", { 
-        places: selectedPlaces 
-      }); // 디버깅용
+      const selectedStyle = options[selected].value;
+      console.log("Sending survey data:", { travel_style_2: selectedStyle }); // 디버깅용
 
-      // localStorage에서 travel_style 가져오기
-      const travelStyle = localStorage.getItem('travel_style');
-      if (!travelStyle) {
-        throw new Error('Travel style not found');
-      }
+      // localStorage에 travel_style_2 저장
+      localStorage.setItem('travel_style_2', selectedStyle);
 
-      const response = await fetch("https://127.0.0.1:5000/api/survey", {
+      const response = await fetch("https://127.0.0.1:5000/api/survey/", {
         method: "POST",
         credentials: "include",
         headers: {
@@ -51,9 +51,9 @@ const Survey1_2 = () => {
           "Accept": "application/json"
         },
         body: JSON.stringify({
-          travel_style: travelStyle,
-          places: selectedPlaces
+          travel_style_2: selectedStyle
         }),
+        mode: 'cors'
       });
 
       // 응답이 JSON인지 확인
@@ -104,15 +104,11 @@ const Survey1_2 = () => {
         <QuestionTitle>{question}</QuestionTitle>
         <OptionsList>
           {options.map((opt, idx) => (
-            <Option 
-              key={idx} 
-              onClick={() => handleSelect(idx)}
-              selected={selected.includes(idx)}
-            >
-              <RadioCircle selected={selected.includes(idx)}>
-                {selected.includes(idx) && <RadioDot />}
+            <Option key={idx} onClick={() => setSelected(idx)}>
+              <RadioCircle selected={selected === idx}>
+                {selected === idx && <RadioDot />}
               </RadioCircle>
-              <OptionText selected={selected.includes(idx)}>{opt}</OptionText>
+              <OptionText selected={selected === idx}>{opt.displayText}</OptionText>
             </Option>
           ))}
         </OptionsList>

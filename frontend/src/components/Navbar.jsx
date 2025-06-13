@@ -92,6 +92,7 @@ const Navbar = () => {
       if (res.ok) {
         setIsLoggedIn(false);
         alert("로그아웃이 완료됐습니다.");
+        navigate("/");
       } else {
         const data = await res.json();
         alert(`로그아웃에 실패했습니다. (${data.message || res.status})`);
@@ -106,7 +107,7 @@ const Navbar = () => {
     e.preventDefault();
     
     try {
-      // 먼저 로그인 상태 확인
+      // 로그인 상태 확인
       const authResponse = await fetch("https://127.0.0.1:5000/api/auth/check", {
         method: "GET",
         credentials: "include",
@@ -114,6 +115,11 @@ const Navbar = () => {
           "Accept": "application/json"
         }
       });
+
+      if (!authResponse.ok) {
+        alert("로그인이 필요한 서비스입니다.");
+        return;
+      }
 
       const authData = await authResponse.json();
       
@@ -123,7 +129,7 @@ const Navbar = () => {
       }
 
       // 로그인된 경우에만 설문 이력 확인
-      const response = await fetch("https://127.0.0.1:5000/api/survey/history", {
+      const surveyResponse = await fetch("https://127.0.0.1:5000/api/survey/history", {
         method: "GET",
         credentials: "include",
         headers: {
@@ -131,25 +137,22 @@ const Navbar = () => {
         }
       });
 
-      if (!response.ok) {
+      if (!surveyResponse.ok) {
         throw new Error("설문 이력을 확인할 수 없습니다.");
       }
 
-      const data = await response.json();
+      const surveyData = await surveyResponse.json();
+      console.log("Survey history response:", surveyData); // 디버깅을 위한 로그 추가
       
-      if (!data.hasHistory) {
+      if (!surveyData.hasHistory) {
         alert("아직 설문을 진행하지 않았습니다. 설문을 먼저 진행해주세요.");
         navigate("/survey-main");
       } else {
-        navigate("/recommendation");
+        navigate("/recommend-city");
       }
     } catch (error) {
       console.error("Error checking survey history:", error);
-      if (error.message.includes('Failed to fetch')) {
-        alert('서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.');
-      } else {
-        alert(error.message || '설문 이력을 확인할 수 없습니다.');
-      }
+      alert("로그인이 필요한 서비스입니다.");
     }
   };
 
@@ -161,10 +164,9 @@ const Navbar = () => {
       <Menu>
         <NavItem to="/about">트립픽?</NavItem>
         <NavItem to="/survey-main">취향 알기</NavItem>
-        <NavItem to="/recommend-city" 
-        // onClick={handleForYouClick}
-        >
-        For you</NavItem>
+        <NavItem as="button" onClick={handleForYouClick}>
+          For you
+        </NavItem>
         <NavAuth>
           {isLoggedIn ? (
             <LoginButton onClick={handleLogout}>
@@ -215,6 +217,10 @@ const NavItem = styled(Link)`
   color: white;
   text-decoration: none;
   font-weight: bold;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
   
   &:hover {
     text-decoration: underline;

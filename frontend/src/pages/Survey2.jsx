@@ -10,7 +10,7 @@ const images = [
   { key: "도심", url: "https://images.unsplash.com/photo-1519501025264-65ba15a82390?" },
   { key: "이색거리", url: "https://images.unsplash.com/photo-1575907794679-016b6bd90285?" },
   { key: "역사", url: "https://images.unsplash.com/photo-1611477623565-aa88aeca8153?" },
-  { key: "휴양지", url: "https://images.unsplash.com/photo-1561133211-6067fc8e7348?" }
+  { key: "휴양지", url: "https://images.unsplash.com/photo-1585938389612-a552a28d6914?" }
 ];
 
 const Survey2 = () => {
