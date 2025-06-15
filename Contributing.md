@@ -5,15 +5,15 @@
 여러분의 기여를 환영합니다 언제나 환영 아주 큰 환영🎉
 
 ### 단!
-  프로젝트 개요는 [README](https://github.com/Lee-Hyeongkyeong/OSSW_githubushim/blob/main/README.md)와 [챗봇README](https://github.com/Lee-Hyeongkyeong/OSSW_githubushim/blob/chatbotAPI/README.md) 에서 확인 부탁드립니다.
-  더 자세한 사항은 [Github Wiki](https://github.com/Lee-Hyeongkyeong/OSSW_githubushim/wiki) 필독!!
+-  프로젝트 개요는 [README](https://github.com/Lee-Hyeongkyeong/OSSW_githubushim/blob/main/README.md)와 [챗봇README](https://github.com/Lee-Hyeongkyeong/OSSW_githubushim/blob/chatbotAPI/README.md) 에서 확인 부탁드립니다.
+-  더 자세한 사항은 [Github Wiki](https://github.com/Lee-Hyeongkyeong/OSSW_githubushim/wiki) 필독!!
 
 ## New contributor Guide
 
-[깃허브 기여 방법](https://docs.github.com/en/get-started/exploring-projects-on-github/finding-ways-to-contribute-to-open-source-on-github)
-[깃 세팅](https://docs.github.com/en/get-started/git-basics/set-up-git)
-[Github 플로우](https://docs.github.com/ko/get-started/using-github/github-flow)
-[Pull Request 협업](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests)
+- [깃허브 기여 방법](https://docs.github.com/en/get-started/exploring-projects-on-github/finding-ways-to-contribute-to-open-source-on-github)
+- [깃 세팅](https://docs.github.com/en/get-started/git-basics/set-up-git)
+- [Github 플로우](https://docs.github.com/ko/get-started/using-github/github-flow)
+- [Pull Request 협업](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests)
 
 
 ## ✍️ 기여 방법
