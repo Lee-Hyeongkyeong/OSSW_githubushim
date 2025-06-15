@@ -88,9 +88,21 @@ OSSW_githubushim/
    ```
 
 3. **환경 변수 설정**
-   - `.env` 파일 생성 후 내용 입력(notion에)
+   `.env` 파일 생성 후 내용 입력
+   ```sh
+   OPENAI_API_KEY=your_openai_api_key_here
+   DATABASE_URL=sqlite:///chatbot.db
+   FLASK_ENV=development
+   FLASK_DEBUG=1
+   SECRET_KEY=your_secret_key_here
+   GOOGLE_MAPS_API_KEY=your_google_maps_api_here
+   GOOGLE_CLIENT_ID=your_google_client_id_here
+   GOOGLE_CLIENT_SECRET=upir_google_client_secret_here
+   ```
+   
      
-4. **서버 실행**
+5. **서버 실행**
+   프로젝트 루트에서
    ```sh
     python wsgi.py
    ```
