@@ -84,14 +84,14 @@ chatbot/
    ```
 
 3. **환경 변수 설정**
-   - `.env` 파일 생성 후 아래 내용 입력
-     ```
-     OPENAI_API_KEY=your_openai_api_key
-     GOOGLE_MAPS_API_KEY=your_google_maps_api_key
-     SECRET_KEY=your_secret_key
-     DATABASE_URL=sqlite:///chatbot.db
-     FLASK_ENV=development
-     ```
+   `.env` 파일 생성 후 아래 내용 입력
+   ```
+   OPENAI_API_KEY=your_openai_api_key
+   GOOGLE_MAPS_API_KEY=your_google_maps_api_key
+   SECRET_KEY=your_secret_key
+   DATABASE_URL=sqlite:///chatbot.db
+   FLASK_ENV=development
+   ```
 
 4. **DB 초기화**
    ```sh
