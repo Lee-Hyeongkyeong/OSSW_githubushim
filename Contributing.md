@@ -3,16 +3,27 @@
 ## Trippick "떠나자, 나답게"
 
 여러분의 기여를 환영합니다 언제나 환영 대환영🎉
+프로젝트 개요는 README에서 확인 부탁드립니다.
+Github Wiki 필독!!
 
-## 1. 시작하기 전에
 ### [이슈] 탭에서 논의해 주세요.
  (https://github.com/Lee-Hyeongkyeong/OSSW_githubushim.git/issues) 
  
-### 개발 환경
+## 기술 스택
+ ### 프론트엔드
+ React.js
+ Node.js
+ npm
+ 
+ ### 백엔드
+ Python
+ Flask
+ SQLAlchemy
 
-
-
-
+## 외부 API
+ Google Maps API
+ OpenAI API
+ 공공데이터포털 국문 관광정보 활용
 
 ## ✍️ 기여 방법
 
@@ -43,8 +54,9 @@
   PR 템플릿을 따라 변경 사항, 이유, 테스트 결과 등을 명확히 작성해주세요.
 
 6. 웹사이트 디자인 준수
-   우리의 아름다운 trippick 디자인과 트립이(마스코트)를 지켜주세요
-   ![image](https://github.com/user-attachments/assets/95bd8a5c-cd06-4af4-9d02-0d853e93d025)
+   우리의 아름다운 trippick 디자인과 트립이(마스코트)를 지켜주세요.
+   ![image](https://github.com/user-attachments/assets/41182af2-f692-4494-b188-ef25f2474968)
+
 
 ## 📌 기여 시 유의사항
 
