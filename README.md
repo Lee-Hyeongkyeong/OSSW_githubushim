@@ -128,6 +128,19 @@ OSSW_githubushim/
 │   │   ├── OS_data.py         # 운영체제 데이터
 │   │   └── OS_tag.py          # 운영체제 태그
 │   │
+│   ├── test/            # 테스트 코드
+│   │   ├── integration/
+│   │   │   ├── test_api_endpoints.py
+│   │   │   └── test_main_app.py
+│   │   └── unit/
+│   │       ├── test_google_user.py
+│   │       ├── test_survey_logic.py
+│   │       ├── test_city_recommend.py
+│   │       ├── test_content_recommend.py
+│   │       ├── test_city_routes.py
+│   │       ├── test_content_routes.py
+│   │       └── test_detail_routes.py
+│   │
 │   ├── templates/         # HTML 템플릿
 │   ├── user_profiles/     # 사용자 프로필
 │   ├── app.py             # 메인 애플리케이션 파일
