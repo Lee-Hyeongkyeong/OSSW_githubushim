@@ -121,10 +121,10 @@ chatbot/
    ```
 
 2. **환경 변수 설정**
-   - `.env` 파일 생성 후 아래 내용 입력
-     ```
-     REACT_APP_API_URL=http://localhost:5000
-     ```
+   `.env` 파일 생성 후 아래 내용 입력
+   ```
+   REACT_APP_API_URL=http://localhost:5000
+   ```
 
 3. **개발 서버 실행**
    ```sh
