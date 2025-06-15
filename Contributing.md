@@ -2,32 +2,26 @@
 
 ## Trippick "떠나자, 나답게"
 
-여러분의 기여를 환영합니다 언제나 환영 대환영🎉
-프로젝트 개요는 README에서 확인 부탁드립니다.
-Github Wiki 필독!!
+여러분의 기여를 환영합니다 언제나 환영 아주 큰 환영🎉
 
-### [이슈] 탭에서 논의해 주세요.
- (https://github.com/Lee-Hyeongkyeong/OSSW_githubushim.git/issues) 
- 
-## 기술 스택
- ### 프론트엔드
- React.js
- Node.js
- npm
- 
- ### 백엔드
- Python
- Flask
- SQLAlchemy
+단!
+프로젝트 개요는 README 에서 확인 부탁드립니다.
+더 자세한 사항은 Github Wiki 필독!!
 
-## 외부 API
- Google Maps API
- OpenAI API
- 공공데이터포털 국문 관광정보 활용
+## New contributor Guide
+
+[깃허브 기여 방법](https://docs.github.com/en/get-started/exploring-projects-on-github/finding-ways-to-contribute-to-open-source-on-github)
+[깃 세팅](https://docs.github.com/en/get-started/git-basics/set-up-git)
+[Github 플로우](https://docs.github.com/ko/get-started/using-github/github-flow)
+[Pull Request 협업](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests)
+
+  
+ 
+
 
 ## ✍️ 기여 방법
 
-  1. 레포지토리 포크(Fork) & 클론(Clone)
+1. 레포지토리 포크(Fork) & 클론(Clone)
   본인의 GitHub 계정으로 포크한 후
   git clone https://github.com/Lee-Hyeongkyeong/OSSW_githubushim.git
   cd OSSW_githubushim
@@ -53,8 +47,10 @@ Github Wiki 필독!!
   main이 아닌 dev 브랜치로 PR을 보내주세요.
   PR 템플릿을 따라 변경 사항, 이유, 테스트 결과 등을 명확히 작성해주세요.
 
-6. 웹사이트 디자인 준수
-   우리의 아름다운 trippick 디자인과 트립이(마스코트)를 지켜주세요.
+6. [이슈](https://github.com/Lee-Hyeongkyeong/OSSW_githubushim.git/issues) 탭에서 논의해 주세요.
+   
+7. 웹사이트 디자인 준수
+   우리의 아름다운 [trippick 디자인](https://www.figma.com/design/AEyKTwbqzQHJPAwdU8kGKk/OSSW_%ED%8C%80%ED%94%8C_%EB%94%94%EC%9E%90%EC%9D%B8?t=11ieUEKUkdDip6XL-1)과 트립이(마스코트)를 지켜주세요.
    ![image](https://github.com/user-attachments/assets/41182af2-f692-4494-b188-ef25f2474968)
 
 
