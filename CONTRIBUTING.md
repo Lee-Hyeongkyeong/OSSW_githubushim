@@ -2,11 +2,27 @@
 
 ## Trippick "떠나자, 나답게"
 
-여러분의 기여를 환영합니다 언제나 환영 아주 큰 환영🎉
+트립픽은 여러분의 기여를 환영합니다 언제나 환영 아주 큰 환영🎉
 
-### 단!
+
+## 📣 목차
+
+1. [시작하기에 앞서](#-시작하기에-앞서)  
+2. [New Contributor Guide](#-New-contributor-Guide)  
+3. [기여 방법](#-기여-방법)
+4. [이슈(버그 정보/기능 제안)](#-이슈(버그-정보/기능-제안))
+5. [기여 시 유의사항](#-기여-시-유의사항)
+6. [우선적으로 기여가 필요한 항목]($-우선적으로-기여가-필요한-항목)
+7. [지원 채널](#-지원-채널)
+
+   
+
+## 📝 시작하기에 앞서
+
 -  프로젝트 개요는 [README](https://github.com/Lee-Hyeongkyeong/OSSW_githubushim/blob/main/README.md)와 [챗봇README](https://github.com/Lee-Hyeongkyeong/OSSW_githubushim/blob/chatbotAPI/README.md) 에서 확인 부탁드립니다.
 -  더 자세한 사항은 [Github Wiki](https://github.com/Lee-Hyeongkyeong/OSSW_githubushim/wiki) 필독!!
+
+  
 
 ## New contributor Guide
 
@@ -14,6 +30,7 @@
 - [깃 세팅](https://docs.github.com/en/get-started/git-basics/set-up-git)
 - [Github 플로우](https://docs.github.com/ko/get-started/using-github/github-flow)
 - [Pull Request 협업](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests)
+
 
 
 ## ✍️ 기여 방법
@@ -52,6 +69,39 @@
      ![image](https://github.com/user-attachments/assets/41182af2-f692-4494-b188-ef25f2474968)
 
 
+
+
+## 🐛 이슈(버그 제보 / 기능 제안)
+문제를 발견하거나 새로운 기능을 제안하고 싶다면, 아래 템플릿을 참고해 이슈를 열어주세요.
+
+---
+name: 🐞 버그 리포트
+about: 프로젝트에서 발견한 문제를 알려주세요.
+title: '[버그] 요약을 간단히 적어주세요'
+labels: ['bug']
+assignees: []
+
+---
+
+**설명**
+문제가 무엇인가요? (간단히 요약)
+
+**재현 방법**
+1. 어떤 동작을 했나요?
+2. 어떤 입력을 주었나요?
+3. 어떤 결과를 기대했나요?
+4. 실제로 어떤 결과가 나왔나요?
+
+**환경 정보**
+- OS: (e.g. Windows 10, macOS 11.2)
+- Node/Python 버전: (e.g. Node 14.17.0)
+- 브라우저: (웹인 경우)
+
+**스크린샷 / 에러 로그**
+
+
+
+
 ## 📌 기여 시 유의사항
 
   민감한 API Key는 .env 파일 또는 시크릿 설정을 따로 사용하며 절대 커밋하지 마세요.
@@ -60,6 +110,7 @@
   
   대규모 기능 추가 전에는 반드시 Issue를 생성하고 팀과 사전 논의해주세요.
   
+
 
 ## 🧪 우선적으로 기여가 필요한 항목
 
@@ -71,7 +122,10 @@
 
 -  테스트 자동화 및 API 문서화(OpenAPI)
 
--  챗봇 db 생성 및 추가 추천 로직(이전 출력값 제외) 
+-  챗봇 db 생성 및 추가 추천 로직(이전 출력값 제외)
+
+
+
 
 🙏 감사의 말
 기여는 단순한 코드 커밋뿐만 아니라, 문서 수정, 피드백 제공, 이슈 리포팅 모두 환영합니다.
