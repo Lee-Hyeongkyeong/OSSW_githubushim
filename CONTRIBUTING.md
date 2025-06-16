@@ -65,7 +65,7 @@
   - [이슈](https://github.com/Lee-Hyeongkyeong/OSSW_githubushim.git/issues) 탭에서 논의해 주세요.
    
 ### 7. 웹사이트 디자인 준수
-  - 우리의 아름다운 [trippick 디자인](https://www.figma.com/design/AEyKTwbqzQHJPAwdU8kGKk/OSSW_%ED%8C%80%ED%94%8C_%EB%94%94%EC%9E%90%EC%9D%B8?t=11ieUEKUkdDip6XL-1)과 트립이(마스코트)를 지켜주세요.
+-[trippick 디자인](https://www.figma.com/design/AEyKTwbqzQHJPAwdU8kGKk/OSSW_%ED%8C%80%ED%94%8C_%EB%94%94%EC%9E%90%EC%9D%B8?t=11ieUEKUkdDip6XL-1)과 트립이(마스코트)를 지켜주세요.
      ![image](https://github.com/user-attachments/assets/41182af2-f692-4494-b188-ef25f2474968)
 
 
