@@ -8,12 +8,11 @@
 ## 📣 목차
 
 1. [시작하기에 앞서](#-시작하기에-앞서)  
-2. [New Contributor Guide](#-New-contributor-Guide)  
+2. [New Contributor Guide](#-New-Contributor-Guide)  
 3. [기여 방법](#-기여-방법)
 4. [이슈(버그 정보/기능 제안)](#-이슈(버그-정보/기능-제안))
 5. [기여 시 유의사항](#-기여-시-유의사항)
 6. [우선적으로 기여가 필요한 항목]($-우선적으로-기여가-필요한-항목)
-7. [지원 채널](#-지원-채널)
 
    
 
@@ -24,7 +23,7 @@
 
   
 
-## New contributor Guide
+## New Contributor Guide
 
 - [깃허브 기여 방법](https://docs.github.com/en/get-started/exploring-projects-on-github/finding-ways-to-contribute-to-open-source-on-github)
 - [깃 세팅](https://docs.github.com/en/get-started/git-basics/set-up-git)
