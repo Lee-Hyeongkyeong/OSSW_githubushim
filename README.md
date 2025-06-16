@@ -1,10 +1,16 @@
-# OSSW_githubushim
+### OSSW_githubushim
 
-# Travel Recommendation System with Chatbot
+<br/>
 
-## Trippick - 떠나자, 나답게
-여행자의 취향을 분석하여 맞춤형 여행 도시와 컨텐츠를 추천해주는 시스템입니다. 
+# Trippick - 떠나자, 나답게
+
+### Travel Recommendation System with Chatbot
+
+> 여행자의 취향을 분석하여 맞춤형 여행 도시와 컨텐츠를 추천해주는 시스템입니다. <br/>
 친근하고 귀여운 챗봇을 통해 사용자에게 즉각적인 여행 정보를 제공합니다.
+
+<br/>
+
 
 ## 주요 기능
 
@@ -25,6 +31,10 @@ Trippick은 Google OAuth 2.0 로그인을 지원하여 사용자가 간편하고
 - 즐겨찾기/찜 기능
 
 - 사용자별 추천 로그 기반 개인화 모델 개선
+ 
+<br/>
+
+
 
 ### 여행 추천 시스템
 Trippick의 핵심 기능은 설문 결과를 기반으로 한 맞춤형 도시 및 콘텐츠 추천입니다.
@@ -53,6 +63,8 @@ Trippick의 핵심 기능은 설문 결과를 기반으로 한 맞춤형 도시 
 - 사용자가 "서울에서 맛집 알려줘", "부산 관광지 뭐가 좋아?"와 같이 자연어로 입력하면, 챗봇이 추천 API를 호출해 실시간으로 응답
 
 - OpenAI GPT-4.1-nano를 활용한 자연어 파싱과 연동
+
+<br/>
 
 ### 챗봇 인터페이스 (chatbot 브랜치)
 Trippick은 사용자의 자연스러운 대화 기반 질의응답 시스템을 제공하는 챗봇 기능을 탑재하고 있습니다.
@@ -89,7 +101,7 @@ OpenAI GPT-4.1-nano 엔진을 사용하여 사용자의 질문에서 핵심 정�
 
 - 사용자별 대화 이력 기반 컨텍스트 추천 강화
 
-
+<br/>
 
 ## 프로젝트 구조
 
@@ -153,6 +165,8 @@ OSSW_githubushim/
 └── .gitignore           # Git 무시 파일 목록
 ```
 
+<br/>
+
 
 ## 백엔드 설치 및 실행 방법
 
@@ -191,8 +205,10 @@ OSSW_githubushim/
     python wsgi.py
    ```
 
+<br/>
 
-##프론트엔드 설치 및 실행 방법
+
+## 프론트엔드 설치 및 실행 방법
 
 1. **의존성 설치**
    ```sh
@@ -209,6 +225,8 @@ OSSW_githubushim/
    yarn start
    ```
 
+<br/>
+
 
 ## 기술 스택
 
@@ -223,6 +241,9 @@ OSSW_githubushim/
 - SQLAlchemy
 - Google Maps API
 - OpenAI API
+
+
+<br/>
 
 
 
@@ -268,9 +289,15 @@ OSSW_githubushim/
 - Requests (v2.26.0) - https://github.com/psf/requests
 - Google Maps (v4.10.0) - https://github.com/googlemaps/google-maps-services-python
 
+<br/>
+
+
 ## License Files
 
 The license files for all dependencies can be found in the `licenses` directory. Each file is named according to the package name and contains the full text of the respective license.
+
+<br/>
+
 
 ## Project License
 
