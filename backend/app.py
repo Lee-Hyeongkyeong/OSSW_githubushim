@@ -8,6 +8,7 @@ from backend.survey.survey    import survey_bp
 from backend.recommend.city_routes    import city_recommend_bp
 from backend.recommend.content_routes    import content_recommend_bp
 from backend.recommend.detail_routes    import detail_recommend_bp
+from backend.chatbot_proxy import proxy_bp
 
 #필요시 API 추가
 #from googleLogin.views import google_bp 
@@ -111,7 +112,7 @@ def after_request(response):
         del response.headers['Access-Control-Allow-Origin']
     
     response.headers['Access-Control-Allow-Origin'] = 'http://localhost:3000'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization,Accept'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization,Accept,X-User-Id'
     response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS'
     response.headers['Access-Control-Allow-Credentials'] = 'true'
     response.headers['Access-Control-Expose-Headers'] = 'Set-Cookie,Content-Type,Authorization'
@@ -144,6 +145,8 @@ app.register_blueprint(survey_bp, url_prefix="/api/survey")
 app.register_blueprint(content_recommend_bp)
 app.register_blueprint(city_recommend_bp)
 app.register_blueprint(detail_recommend_bp)
+app.register_blueprint(proxy_bp, url_prefix="/api/chatbot")
+
 
 
 @app.route("/")
