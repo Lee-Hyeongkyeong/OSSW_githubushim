@@ -94,7 +94,7 @@ const Home = () => {
       console.log('Survey history response:', surveyData);
       
       if (surveyData.hasHistory) {
-        navigate('/recommendation');
+        navigate('/recommend-city');
       } else {
         navigate('/survey-main');
       }

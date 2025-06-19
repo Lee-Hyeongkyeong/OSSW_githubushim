@@ -56,7 +56,18 @@ const SurveyMain = () => {
           </BannerText>
         </Banner>
         <Description>
-          Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+        국내에는 각기 다른 매력을 지닌 다양한 여행지가 있습니다. <br/>
+        트립픽은 여러분의 취향에 꼭 맞는 여행지를 찾을 수 있도록 도와드립니다.<br/>
+
+        <br/>
+
+        간단한 6가지 질문에 답해주시면, 여러분의 여행 취향을 분석하여<br/>
+        어울리는 도시 3곳을 추천해드릴게요. 추천받은 도시 중 하나를 선택하면, <br/>
+        그 도시에 맞는 맞춤형 여행 콘텐츠와 정보를 안내해드립니다.<br/>
+        
+        <br/>
+
+        지금 바로 설문을 시작하고, 나만의 여행 취향을 발견해보세요!
         </Description>
         <SurveyButton onClick={handleStartSurvey}>설문 시작</SurveyButton>
       </Main>
