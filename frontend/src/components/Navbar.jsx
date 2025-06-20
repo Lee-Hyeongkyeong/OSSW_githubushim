@@ -1,50 +1,185 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import logo from '../assets/pic/trippick-logo-white.png';
 
-// 구글 로고(공식 SVG)
-const GoogleIcon = () => (
-  <img src="https://img.icons8.com/?size=512&id=17949&format=png" width="22" height="22" viewBox="0 0 48 48" style={{ marginRight: 12 }}>
-  </img>
-);
+// //구글 로고(공식 SVG)
+// const GoogleIcon = () => (
+//   <img src="https://img.icons8.com/?size=512&id=17949&format=png" width="22" height="22" viewBox="0 0 48 48" style={{ marginRight: 12 }}>
+//   </img>
+// );
 
 const Navbar = () => {
+  const navigate = useNavigate();
   const [modalOpen, setModalOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // 팝업에서 메시지 수신
+  useEffect(() => {
+    const handleMessage = (event) => {
+      // 보안을 위해 origin 체크 필요 (실서비스에서는 event.origin 체크)
+      if (event.data && event.data.type === "LOGIN_SUCCESS") {
+        setIsLoggedIn(true);
+        setModalOpen(false); // 모달 닫기
+      }
+    };
+    window.addEventListener("message", handleMessage);
+    // 클린업
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
+
+  // 로그인 상태 확인(새로고침 시에도 유지)
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const response = await fetch("https://127.0.0.1:5000/api/auth/check", {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Accept": "application/json"
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to check login status");
+        }
+
+        const data = await response.json();
+        console.log("Login check response:", data);
+        
+        setIsLoggedIn(data.loggedIn);
+        if (data.loggedIn) {
+          setModalOpen(false);
+        }
+      } catch (error) {
+        console.error("Error checking login status:", error);
+        // 에러가 발생해도 로그인 상태를 변경하지 않음
+      }
+    };
+
+    checkLoginStatus();
+  }, []);
+
+  const handleGoogleLogin = () => {
+    const popup = window.open(
+      "https://127.0.0.1:5000/", // 백엔드 OAuth 엔드포인트
+      "googleLogin",
+      "width=500,height=600"
+    );
+
+    // 팝업에서 인증 완료 후, window.opener.postMessage로 부모 창에 결과 전달 가능
+    window.addEventListener("message", (event) => {
+      if (event.origin !== "https://127.0.0.1:5000") return;
+      
+      if (event.data && event.data.type === "LOGIN_SUCCESS") {
+        setIsLoggedIn(true);
+        setModalOpen(false);
+      }
+    });
+  };
+
+  const handleLogout = async () => {
+    try {
+      const res = await fetch("https://127.0.0.1:5000/logout", {
+        method: "GET",
+        credentials: "include",
+        mode: 'cors',
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+
+      if (res.ok) {
+        setIsLoggedIn(false);
+        alert("로그아웃이 완료됐습니다.");
+        navigate("/");
+      } else {
+        const data = await res.json();
+        alert(`로그아웃에 실패했습니다. (${data.message || res.status})`);
+      }
+    } catch (e) {
+      console.error("Logout error:", e);
+      alert("네트워크 오류로 로그아웃에 실패했습니다.");
+    }
+  };
+
+  const handleForYouClick = async (e) => {
+    e.preventDefault();
+    
+    try {
+      // 로그인 상태 확인
+      const authResponse = await fetch("https://127.0.0.1:5000/api/auth/check", {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Accept": "application/json"
+        }
+      });
+
+      if (!authResponse.ok) {
+        alert("로그인이 필요한 서비스입니다.");
+        return;
+      }
+
+      const authData = await authResponse.json();
+      
+      if (!authData.loggedIn) {
+        alert("로그인이 필요한 서비스입니다.");
+        return;
+      }
+
+      // 로그인된 경우에만 설문 이력 확인
+      const surveyResponse = await fetch("https://127.0.0.1:5000/api/survey/history", {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Accept": "application/json"
+        }
+      });
+
+      if (!surveyResponse.ok) {
+        throw new Error("설문 이력을 확인할 수 없습니다.");
+      }
+
+      const surveyData = await surveyResponse.json();
+      console.log("Survey history response:", surveyData); // 디버깅을 위한 로그 추가
+      
+      if (!surveyData.hasHistory) {
+        alert("아직 설문을 진행하지 않았습니다. 설문을 먼저 진행해주세요.");
+        navigate("/survey-main");
+      } else {
+        navigate("/recommend-city");
+      }
+    } catch (error) {
+      console.error("Error checking survey history:", error);
+      alert("로그인이 필요한 서비스입니다.");
+    }
+  };
 
   return (
-    <>
-      <Nav>
-        <Home to="/">
-          <LogoImg src={logo} alt="로고" />
-        </Home>
-        <Menu>
-          <NavItem to="/about">트립픽?</NavItem>
-          <NavItem to="/survey-main">취향 알기</NavItem>
-          <NavItem to="/recommend-city">For you</NavItem>
-          <LoginButton type="button" onClick={() => setModalOpen(true)}>
-            Login
-          </LoginButton>
-        </Menu>
-      </Nav>
-      {modalOpen && (
-        <ModalBackdrop onClick={() => setModalOpen(false)}>
-          <ModalBox onClick={e => e.stopPropagation()}>
-            <ModalTitle>SNS 로그인</ModalTitle>
-            <GoogleLoginBtn
-              onClick={() => {
-                // 구글 로그인 로직 연결
-                alert('구글 로그인!');
-              }}
-            >
-              <GoogleIcon />
-              Google Login
-            </GoogleLoginBtn>
-            <ModalClose onClick={() => setModalOpen(false)}>닫기</ModalClose>
-          </ModalBox>
-        </ModalBackdrop>
-      )}
-    </>
+    <Nav>
+      <Home to="/">
+        <LogoImg src={logo} alt="로고" />
+      </Home>
+      <Menu>
+        <NavItem to="/about">트립픽?</NavItem>
+        <NavItem to="/survey-main">취향 알기</NavItem>
+        <NavItem as="button" onClick={handleForYouClick}>
+          For you
+        </NavItem>
+        <NavAuth>
+          {isLoggedIn ? (
+            <LoginButton onClick={handleLogout}>
+              Logout
+            </LoginButton>
+          ) : (
+            <LoginButton onClick={handleGoogleLogin}>
+              Login
+            </LoginButton>
+          )}
+        </NavAuth>
+      </Menu>
+    </Nav>
   );
 };
 
@@ -82,6 +217,11 @@ const NavItem = styled(Link)`
   color: white;
   text-decoration: none;
   font-weight: bold;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  
   &:hover {
     text-decoration: underline;
   }
@@ -98,12 +238,18 @@ const LoginButton = styled.button`
   cursor: pointer;
   margin-left: 18px;
   transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
   &:hover {
     opacity: 0.7;
   }
 `;
 
-// --- Modal 스타일 ---
+const NavAuth = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
 const ModalBackdrop = styled.div`
   position: fixed;
   left: 0; top: 0; right: 0; bottom: 0;

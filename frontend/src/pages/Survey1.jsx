@@ -1,19 +1,66 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import point from '../assets/pic/finalpoint.png';
 import img1 from '../assets/pic/survey-1.png'
 
 const question = 'Q. 당신의 여행 스타일은 무엇인가요?';
 const options = [
-  '인증형',
-  '맛집 탐방형',
-  '관광형',
-  '휴식형'
+  { displayText: '남는 건 사진 뿐! 여행에서 인생샷 남겨야지 📸', value: '인증형' },
+  { displayText: '여기 맛집 가서 이건 꼭 먹어 보고 가야해! 🍲', value: '맛집탐방형' },
+  { displayText: '여행 왔으면 여기 있는 관광지는 다 들러봐야지! 🚌', value: '관광형' },
+  { displayText: '멍 때리고, 자연 즐기고, 힐링하고 싶어.. 🌿', value: '휴식형' }
 ];
 
 const Survey1 = () => {
   const [selected, setSelected] = useState(0);
+  const navigate = useNavigate();
+
+  const handleNext = async () => {
+    try {
+      // 선택한 옵션의 실제 값
+      const selectedStyle = options[selected].value;
+      console.log("Sending survey data:", { travel_style_1: selectedStyle }); // 디버깅용
+
+      // localStorage에 travel_style_1 저장
+      localStorage.setItem('travel_style_1', selectedStyle);
+
+      const response = await fetch("https://127.0.0.1:5000/api/survey/", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          travel_style_1: selectedStyle
+        }),
+        mode: 'cors'
+      });
+
+      // 응답이 JSON인지 확인
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("서버 응답이 JSON 형식이 아닙니다.");
+      }
+
+      const data = await response.json();
+      console.log("Survey response:", data);
+
+      if (!response.ok) {
+        throw new Error(data.error || '서버 응답이 올바르지 않습니다.');
+      }
+
+      navigate("/survey-step1-1");
+    } catch (error) {
+      console.error("Error:", error);
+      if (error.message.includes('Failed to fetch')) {
+        alert('서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.');
+      } else {
+        alert(error.message || '설문 저장 중 오류가 발생했습니다. 다시 시도해주세요.');
+      }
+    }
+  };
 
   // 진행률
   const progress = 0;
@@ -46,14 +93,13 @@ const Survey1 = () => {
               <RadioCircle selected={selected === idx}>
                 {selected === idx && <RadioDot />}
               </RadioCircle>
-              <OptionText selected={selected === idx}>{opt}</OptionText>
+              <OptionText selected={selected === idx}>{opt.displayText}</OptionText>
             </Option>
           ))}
         </OptionsList>
       </QuestionBox>
       <NavRow>
-        {/* <NavButton to="/survey-main">&lt; 이전</NavButton> */}
-        <NavButton to="/survey-step1-1" right>다음 &gt;</NavButton>
+        <NavButton as="button" right onClick={handleNext}>다음 &gt;</NavButton>
       </NavRow>
     </SurveyContainer>
   );
@@ -133,7 +179,6 @@ const StepDotBar = styled.div`
   align-items: center;
 `;
 
-
 const DotBg = styled.div`
   position: absolute;
   left: 0; top: 50%;
@@ -159,8 +204,8 @@ const StepIcon = styled.div`
 `;
 
 const FinalImg = styled.img`
-    width: 25px;
-    height: auto;
+  width: 25px;
+  height: auto;
 `;
 
 const QuestionBox = styled.div`

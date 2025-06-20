@@ -8,7 +8,7 @@ CREATE TABLE user (
 CREATE TABLE IF NOT EXISTS survey_results (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id TEXT NOT NULL,
-    travel_style TEXT,
+     TEXT,
     priority TEXT,
     places TEXT,
     purposes TEXT,

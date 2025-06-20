@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, userNavigate } from 'react';
 import styled from 'styled-components';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import point from '../assets/pic/finalpoint.png';
 import img1 from '../assets/pic/survey-1.png'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const question = 'Q. 당신이 여행에서 가장 중요하게 생각하는 것은?';
 const initialItems = [
@@ -14,6 +14,7 @@ const initialItems = [
 
 const Survey1_1 = () => {
   const [items, setItems] = useState(initialItems);
+  const navigate = useNavigate();
   const progress = 20;
 
   // 드래그 결과 처리
@@ -25,6 +26,58 @@ const Survey1_1 = () => {
     setItems(newItems);
   };
 
+  // "다음" 버튼 클릭 시
+  const handleNext = async () => {
+    try {
+      // 선택한 옵션의 실제 값
+      const selectedPriority = items.map(item => item.label);
+      console.log("Sending survey data:", { 
+        priorities: selectedPriority 
+      }); // 디버깅용
+
+      // localStorage에서 travel_style 가져오기
+      const travelStyle = localStorage.getItem('travel_style');
+      if (!travelStyle) {
+        throw new Error('Travel style not found');
+      }
+
+      const response = await fetch("https://127.0.0.1:5000/api/survey", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          travel_style: travelStyle,
+          priorities: selectedPriority
+        }),
+      });
+
+      // 응답이 JSON인지 확인
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("서버 응답이 JSON 형식이 아닙니다.");
+      }
+
+      const data = await response.json();
+      console.log("Survey response:", data);
+
+      if (!response.ok) {
+        throw new Error(data.error || '서버 응답이 올바르지 않습니다.');
+      }
+
+      navigate("/survey-step1-2");
+    } catch (error) {
+      console.error("Error:", error);
+      if (error.message.includes('Failed to fetch')) {
+        alert('서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.');
+      } else {
+        alert(error.message || '설문 저장 중 오류가 발생했습니다. 다시 시도해주세요.');
+      }
+    }
+  };
+  
   return (
     <SurveyContainer>
       <Banner>
@@ -35,7 +88,7 @@ const Survey1_1 = () => {
       </Banner>
       <StepRow>
         <StepTitle>
-          Step 2
+          Step 1
           <StepDotBar>
             <DotProgress style={{ width: `${progress}%` }} />
             <DotBg />
@@ -78,7 +131,7 @@ const Survey1_1 = () => {
       </QuestionBox>
       <NavRow>
         <NavButton to="/survey-step1">&lt; 이전</NavButton>
-        <NavButton to="/survey-step1-2" right>다음 &gt;</NavButton>
+        <NavButton as="button" right onClick={handleNext}>다음 &gt;</NavButton>
       </NavRow>
     </SurveyContainer>
   );

@@ -10,12 +10,13 @@ const images = [
   { key: "도심", url: "https://images.unsplash.com/photo-1519501025264-65ba15a82390?" },
   { key: "이색거리", url: "https://images.unsplash.com/photo-1575907794679-016b6bd90285?" },
   { key: "역사", url: "https://images.unsplash.com/photo-1611477623565-aa88aeca8153?" },
-  { key: "휴양지", url: "https://images.unsplash.com/photo-1561133211-6067fc8e7348?" }
+  { key: "휴양지", url: "https://images.unsplash.com/photo-1585938389612-a552a28d6914?" }
 ];
 
 const Survey2 = () => {
   const [selected, setSelected] = useState([]);
-
+  const navigate = useNavigate();
+  
   const progress = 60;
 
   const handleSelect = (idx) => {
@@ -28,16 +29,55 @@ const Survey2 = () => {
     }
   };
 
-  const navigate = useNavigate();
+  const handleNext = async () => {
+    try {
+      // 선택한 옵션의 실제 값
+      const selectedPlaces = selected.map(idx => images[idx].key);
+      console.log("Sending survey data:", { 
+        places: selectedPlaces 
+      }); // 디버깅용
 
-  // 다음 버튼 클릭 시
-  const handleNext = () => {
-    if (selected.length === 0) {
-      alert("최소 1개 이상 선택해 주세요!");
-      return;
+      // localStorage에서 travel_style 가져오기
+      const travelStyle = localStorage.getItem('travel_style');
+      if (!travelStyle) {
+        throw new Error('Travel style not found');
+      }
+
+      const response = await fetch("https://127.0.0.1:5000/api/survey", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          travel_style: travelStyle,
+          places: selectedPlaces
+        }),
+      });
+
+      // 응답이 JSON인지 확인
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("서버 응답이 JSON 형식이 아닙니다.");
+      }
+
+      const data = await response.json();
+      console.log("Survey response:", data);
+
+      if (!response.ok) {
+        throw new Error(data.error || '서버 응답이 올바르지 않습니다.');
+      }
+
+      navigate("/survey-step2-1");
+    } catch (error) {
+      console.error("Error:", error);
+      if (error.message.includes('Failed to fetch')) {
+        alert('서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.');
+      } else {
+        alert(error.message || '설문 저장 중 오류가 발생했습니다. 다시 시도해주세요.');
+      }
     }
-    // 선택이 1개 또는 2개일 때만 다음으로 이동
-    navigate("/survey-step2-1");
   };
 
   return (

@@ -12,7 +12,7 @@ venv/
 
 # ——————————————————————————————
 # Node.js / Front-end
-/node_modules
+frontend/node_modules
 /.pnp
 .pnp.js
 
@@ -40,3 +40,11 @@ yarn-error.log*
 # ——————————————————————————————
 # macOS 시스템 파일
 .DS_Store
+#node_modules 무시 설정
+node_modules/
+.json
+.sqlite_db
+
+# 제외할 파일들
+backend/googleLogin/sqlite_db
+/backend/user_profiles/*.json
