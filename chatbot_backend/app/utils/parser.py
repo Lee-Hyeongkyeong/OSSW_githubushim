@@ -1,91 +1,182 @@
+#parser.py
 """
 자연어 파싱 유틸리티 모듈
 - OpenAI API를 사용한 자연어 처리
 - 사용자 입력에서 검색 파라미터 추출
-- (todo-list)추천 요청 시 이전 요청 정보 활용 가능
+- 간단한 동의어 매핑(키워드 정규화)
 """
 
 import os
 import openai
 
-# OpenAI 클라이언트 초기화
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+# ─── 간단 동의어 사전 ─────────────────────────────────
+# key: 사용자가 입력할 수 있는 표현
+# value: Google Maps API 에 넘길 표준 키워드
+SYNONYMS = {
+    "카페": "coffee",
+    "커피숍": "coffee",
+    "놀거리": "activity",
+    "액티비티": "activity",
+    "데이트하기 좋은 곳": "romantic",
+    "분위기 좋은 곳": "romantic",
+    "분위기 좋은곳": "romantic",
+    "백화점": "department store",
+    "방탈출": "escape room",
+    "맛집": "restaurant",
+    "식당": "restaurant",
+    "레스토랑": "restaurant",
+    "영화관": "movie theater",
+    "박물관": "museum",
+    "미술관": "museum",
+    "호텔": "hotel",
+    "전시회": "exhibition",
+    "공연": "show",
+    "콘서트": "concert",
+    "놀이공원": "amusement park",
+    "테마파크": "theme park",
+    "공원": "park",
+    "산책로": "walking trail",
+    "해변": "beach",
+    "바닷가": "beach",
+    "시장": "market",
+    "전통시장": "traditional market",
+    "야시장": "night market",
+    "쇼핑몰": "shopping mall",
+    "바&펍": "bar",
+    "펍": "bar",
+    "클럽": "club",
+    "산": "mountain",
+    "강": "river",
+    "호수": "lake",
+    "산책": "stroll",
+    "등산": "hiking",
+    # 추가 동의어
+    "캠핑": "camping",
+    "낚시": "fishing",
+    "스키장": "ski resort",
+    "스키": "skiing",
+    "스노우보드": "snowboarding",
+    "자전거": "cycling",
+    "드라이브": "driving",
+    "와인 시음": "wine tasting",
+    "와이너리": "winery",
+    "맥주 양조장": "brewery",
+    "술집": "pub",
+    "전망대": "observatory",
+    "등대": "lighthouse",
+    "유적지": "historic site",
+    "사찰": "temple",
+    "교회": "church",
+    "성당": "cathedral",
+    "왕궁": "palace",
+    "성": "castle",
+    "동물원": "zoo",
+    "수족관": "aquarium",
+    "식물원": "botanical garden",
+    "워터파크": "water park",
+    "온천": "hot spring",
+    "스파": "spa",
+    "피트니스": "gym",
+    "헬스장": "gym",
+    "클라이밍": "climbing",
+    "볼링장": "bowling alley",
+    "당구장": "billiards",
+    "노래방": "karaoke",
+    "VR 체험": "VR experience",
+    "키즈카페": "kids cafe",
+    "아쿠아리움": "aquarium",  # aquarium의 다른 표기
+    "전통 공연": "traditional show",
+}
+
+
+
+def normalize_keyword(word: str) -> str:
+    """
+    동의어 사전을 기반으로 단어를 표준 키워드로 정규화합니다.
+    """
+    key = word.strip().lower()
+    return SYNONYMS.get(key, key)
+
+# ─── OpenAI 기반 파라미터 추출 ─────────────────────────────────
 
 def extract_parameters_with_openai(user_input, last_request=None):
     """
-    (todo-list)
     OpenAI API를 사용하여 사용자 입력에서 검색 파라미터 추출
-    - 카테고리, 반경, 정렬 기준 추출
-    - 이전 요청 정보 활용 가능 (추가 추천 요청 시)
+    - category, radius, sort_by
+    - 'more_recommendations' 처리
     """
-    # 추가 추천 요청 처리
-    if user_input == "more_recommendations" and last_request:
+    # 추가 요청 처리
+    if user_input in ("more_recommendations", "더 많은 장소 추천받기", "더보기") and last_request:
         return {
-            "category": last_request.get('categories', [''])[0] if last_request.get('categories') else '',
-            "radius": last_request.get('radius', 1000),
-            "sort_by": last_request.get('sort_by', 'rating')
+            "category": last_request.get('categories', [''])[0] or '',
+            "radius": last_request.get('radius', 2000),
+            "sort_by": last_request.get('sort_by', 'rating'),
+            "is_more_request": True
         }
 
-    # OpenAI API 프롬프트 구성
     prompt = f"""
-    사용자의 요청 문장에서 아래 항목을 JSON으로 추출해줘.
-    - category: 추천받고 싶은 장소/음식 카테고리(예: 중식, 카페, 초밥 등)
-    - radius: 숫자(미터 단위, 없으면 1000)
-    - sort_by: "distance", "rating" 중 하나(없으면 "rating")
-    예시 입력: "반경 3km 이내의 중식집 거리 순으로 추천해줘."
-    예시 출력: {{"category": "중식", "radius": 3000, "sort_by": "distance"}}
+    사용자의 요청 문장에서 아래 JSON을 추출해줘.
+    - category: 추천 카테고리 (예: 카페, 맛집, 박물관 등)
+    - radius: 숫자(미터 단위, 없으면 2000)
+    - sort_by: "distance" 또는 "rating"(없으면 "rating")
     입력: "{user_input}"
     출력:
     """
-    
-    # OpenAI API 호출
-    response = client.chat.completions.create(
-        model="gpt-4.1-nano",
-        messages=[
-            {"role": "system", "content": "너는 입력 문장에서 category, radius, sort_by를 추출해 JSON으로 반환하는 파서야."},
-            {"role": "user", "content": prompt}
-        ],
-        max_tokens=60,
-        temperature=0
-    )
-    
-    # 응답 파싱 및 기본값 처리
-    import json
     try:
-        result = json.loads(response.choices[0].message.content.strip())
-        return {
-            "category": result.get("category", ""),
-            "radius": int(result.get("radius", 1000)),
-            "sort_by": result.get("sort_by", "rating")
-        }
+        resp = client.chat.completions.create(
+            model="gpt-4.1-nano",
+            messages=[
+                {"role": "system", "content": "JSON으로 category, radius, sort_by를 반환하는 파서입니다."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=60,
+            temperature=0
+        )
+        import json
+        result = json.loads(resp.choices[0].message.content.strip())
     except Exception:
-        # 파싱 실패 시 기본값 반환
-        return {
-            "category": user_input.strip(),
-            "radius": 1000,
-            "sort_by": "rating"
-        }
+        result = {}
 
-def extract_search_keywords(user_input):
+    return {
+        "category": result.get("category", "").strip(),
+        "radius": int(result.get("radius", 2000)),
+        "sort_by": result.get("sort_by", "rating"),
+        "is_more_request": False
+    }
+
+# ─── 키워드 추출 및 정규화 ─────────────────────────────────
+
+def extract_search_keywords(user_input: str):
     """
-    검색 키워드 추출
-    - 입력을 단일 키워드로 처리
+    단순히 입력 전체를 하나의 키워드로 쓰되,
+    동의어 사전을 통해 정규화해서 돌려줍니다.
     """
-    return [user_input.strip()] if user_input.strip() else []
+    kw = user_input.strip()
+    if not kw:
+        return []
+    # 동의어 정규화
+    return [normalize_keyword(kw)]
+
+# ─── 최종 파싱 함수 ─────────────────────────────────
 
 def parse_request(request_data):
     """
     요청 데이터 파싱
-    - 사용자 입력에서 검색 파라미터 추출
-    - 위치, 검색어, 반경, 정렬 기준 반환
+    - OpenAI 추출 + 동의어 정규화
     """
     user_input = request_data.get("user_input", "")
-    # last_request = request_data.get("last_request", None) #(todo-list)
-    params = extract_parameters_with_openai(user_input) # (user_input, last_request)
-    
+    last_req = request_data.get("last_request")
+    params = extract_parameters_with_openai(user_input, last_req)
+
+    raw_category = params["category"] or user_input
+    keywords = extract_search_keywords(raw_category)
+
     return {
         "location": "현재 위치",
-        "search_keywords": [params["category"]] if params["category"] else None,
+        "search_keywords": keywords or None,
         "radius": params["radius"],
-        "sort_by": params["sort_by"]
+        "sort_by": params["sort_by"],
+        "is_more_request": params.get("is_more_request", False)
     }
