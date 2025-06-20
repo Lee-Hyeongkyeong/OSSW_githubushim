@@ -1,8 +1,5 @@
 """
-Google Maps API 연동 서비스 모듈
-- 장소 검색
-- 장소 상세 정보 조회
-- 길찾기 정보 조회
+services/google_maps_api.py
 """
 
 from flask import current_app

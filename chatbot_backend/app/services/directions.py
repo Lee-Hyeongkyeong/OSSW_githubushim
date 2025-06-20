@@ -1,8 +1,8 @@
-# directions.py: Google Maps API를 사용하여 경로 정보를 제공하는 서비스 모듈
+# services/directions.py: Google Maps API를 사용하여 경로 정보를 제공하는 서비스 모듈
 
 from flask import jsonify
 import requests
-from config import GOOGLE_MAPS_API_KEY
+from app.config import GOOGLE_MAPS_API_KEY
 
 def get_directions(origin, destination):
     """
