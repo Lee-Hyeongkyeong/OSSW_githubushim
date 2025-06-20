@@ -1,15 +1,3 @@
-/**
- * userImg.png
- * : <a href="https://www.flaticon.com/kr/free-icons/" title="사람 아이콘">사람 아이콘 제작자: Muhammad_Usman - Flaticon</a>
- * TODO 리스트:
- * 1. currentMessage: 추가 추천 버튼 메시지 재사용을 위한 상태
- * 2. displayedPlaceIds: 추천 장소 메시지 추가를 위한 상태
- * 3. handleMoreRecommendations: 추가 추천 기능 구현
- * 4. handleSend 내 displayedPlaceIds 초기화: 새로운 메시지 입력 시 이전 추천 장소 목록 초기화
- * 
- * 이와 관련된 코드들은 MVP에 작성되지 않은 '장소 추가 추천 기능'으로, 추후 사용자 경험 개선을 위해 구현할 예정입니다.
- */
-
 import React, { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
 import axios from "axios";
@@ -21,325 +9,245 @@ axios.defaults.baseURL = 'https://localhost:5000/api/chatbot';
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 axios.defaults.headers.common['X-USER-ID'] = 'test-user-id';
 
-// FloatingChat 컴포넌트: 챗봇의 메인 컴포넌트
 const FloatingChat = () => {
-  // 상태 관리
-  const [open, setOpen] = useState(false); // 챗봇 창의 열림/닫힘 상태
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      user: "partner",
-      text: "안녕하세요! 저는 트립이에요 👋\n  언제, 어디서나 원하는 장소를 찾아드려요.\n어떤 장소를 원하시나요?"
-    }
-  ]); // 대화 메시지 목록
-  const [input, setInput] = useState(""); // 사용자 입력 메시지
-  const [isLoading, setIsLoading] = useState(false); // 로딩 상태
-  const [location, setLocation] = useState({ latitude: null, longitude: null }); // 사용자 위치 정보
-  const [locationError, setLocationError] = useState(null); // 위치 정보 오류
-  const [currentMessage, setCurrentMessage] = useState(""); // 현재 메시지
-  const [displayedPlaceIds, setDisplayedPlaceIds] = useState(new Set()); // 이미 표시된 장소 ID 목록
-  const chatEndRef = useRef(null); // 채팅창 스크롤을 위한 ref
-
-  // 로딩 애니메이션을 위한 상태
+  const [open, setOpen] = useState(false);
+  const [messages, setMessages] = useState([{
+    id: 1, user: "partner",
+    text: "안녕하세요! 저는 트립이에요 👋\n어떤 장소를 원하시나요?"
+  }]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [location, setLocation] = useState({ latitude: null, longitude: null });
+  const [locationError, setLocationError] = useState(null);
+  const [currentMessage, setCurrentMessage] = useState("");
+  const [displayedPlaceIds, setDisplayedPlaceIds] = useState(new Set());
+  const chatEndRef = useRef(null);
   const [loadingDots, setLoadingDots] = useState("");
 
-  // 로딩 애니메이션 효과
+  // 로딩 애니메이션
   useEffect(() => {
-    let interval;
+    let iv;
     if (isLoading) {
-      interval = setInterval(() => {
-        setLoadingDots(prev => {
-          if (prev.length >= 3) return "";
-          return prev + ".";
-        });
+      iv = setInterval(() => {
+        setLoadingDots(d => d.length >= 3 ? "" : d + ".");
       }, 500);
-    } else {
-      setLoadingDots("");
-    }
-    return () => clearInterval(interval);
+    } else setLoadingDots("");
+    return () => clearInterval(iv);
   }, [isLoading]);
 
-  // 위치 정보 가져오기
+  // 위치 가져오기
   useEffect(() => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        position => {
-          setLocation({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude
-          });
-        },
-        error => {
-          console.error("위치 정보 오류:", error);
-          setLocationError(error.message);
-        }
-      );
-    } else {
-      setLocationError("이 브라우저에서는 위치 정보를 지원하지 않습니다.");
-    }
+    navigator.geolocation?.getCurrentPosition(
+      pos => setLocation({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
+      err => setLocationError(err.message)
+    );
   }, []);
 
-  // 채팅창 스크롤 자동 이동
+  // 스크롤
   useEffect(() => {
-    if (chatEndRef.current) {
-      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // 메시지 전송 처리
+  // -------------------------------
+  // 1) 첫 요청 (is_more_request: false)
+  // -------------------------------
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
-
-    // 위치 정보 확인
-    if (!location.latitude || !location.longitude) {
-      const errorMsg = locationError 
-        ? `위치 정보 오류: ${locationError}`
-        : "위치 정보를 가져오는 중입니다. 잠시만 기다려주세요.";
-      
-      setMessages(prev => [...prev, {
-        id: Date.now(),
-        user: "partner",
-        text: errorMsg
-      }]);
-      return;
+    if (!location.latitude) {
+      const errMsg = locationError ? `위치 오류: ${locationError}` : "위치 정보를 가져오는 중입니다.";
+      return setMessages(m => [...m, { id:Date.now(), user:"partner", text: errMsg }]);
     }
 
-    const userMsg = { id: Date.now(), user: "user", text: input };
-    setMessages(prev => [...prev, userMsg]);
+    // 사용자 메시지 추가 & 초기화
+    setMessages(m => [...m, { id:Date.now(), user:"user", text: input }]);
     setCurrentMessage(input);
-    setDisplayedPlaceIds(new Set());
+    setDisplayedPlaceIds(new Set());   // 이전 추천 초기화
     setInput("");
     setIsLoading(true);
 
-    // 검색 중 메시지 추가
-    const searchingMsg = {
-      id: Date.now() + Math.random(),
-      user: "partner",
-      text: "장소를 탐색하고 있습니다."
-    };
-    setMessages(prev => [...prev, searchingMsg]);
+    // 검색중 표시
+    const loadingMsg = { id:Date.now()+1, user:"partner", text:"장소를 탐색하고 있습니다." };
+    setMessages(m => [...m, loadingMsg]);
 
     try {
-      console.log("API 요청 시작:", {
-        latitude: location.latitude,
-        longitude: location.longitude,
-        user_input: input
-      });
-
-      const response = await axios.post('/chat', {
+      const { data } = await axios.post('/chat', {
         latitude: location.latitude,
         longitude: location.longitude,
         user_input: input,
-        displayed_place_ids: Array.from(displayedPlaceIds)
+        displayed_place_ids: Array.from(displayedPlaceIds),
+        is_more_request: false          // <-- 처음엔 false
       });
 
-      console.log("API 응답:", response.data);
+      console.log(data.recommendations);
 
-      // 검색 중 메시지 제거
-      setMessages(prev => prev.filter(msg => msg.id !== searchingMsg.id));
+      // 로딩 메시지 제거
+      setMessages(m => m.filter(x => x.id !== loadingMsg.id));
 
-      if (response.data && response.data.recommendations && response.data.recommendations.length > 0) {
-        // 새로운 추천 장소들의 ID를 displayedPlaceIds에 추가
-        const newPlaceIds = response.data.recommendations.map(place => place.place_id);
-        setDisplayedPlaceIds(prev => new Set([...prev, ...newPlaceIds]));
+      // 추천 결과 처리
+      if (data.recommendations?.length) {
+        const newIds = data.recommendations.map(r => r.place_id);
+        setDisplayedPlaceIds(prev => new Set([...prev, ...newIds]));
 
-        // 추천 장소 메시지 추가
-        const recommendationsMsg = {
-          id: Date.now() + Math.random(),
-          user: "partner",
-          text: "추천 장소를 찾았어요!",
-          recommendations: response.data.recommendations
-        };
-        setMessages(prev => [...prev, recommendationsMsg]);
-
-        setMessages(prev => [...prev, {
-          id: Date.now() + Math.random(),
-          user: "partner",
-          text: "더 많은 장소를 추천받으시겠어요?",
+        setMessages(m => [...m, {
+          id: Date.now()+2, user:"partner",
+          text:"추천 장소를 찾았어요!",
+          recommendations: data.recommendations
+        }, {
+          id: Date.now()+3, user:"partner",
+          text:"더 많은 장소를 추천받으시겠어요?",
           showMoreButton: true
         }]);
       } else {
-        setMessages(prev => [...prev, {
-          id: Date.now(),
-          user: "partner",
-          text: "죄송합니다. 조건에 맞는 장소를 찾지 못했습니다."
+        setMessages(m => [...m, {
+          id:Date.now(), user:"partner",
+          text:"조건에 맞는 장소를 찾지 못했습니다."
         }]);
       }
-    } catch (error) {
-      // 검색 중 메시지 제거
-      setMessages(prev => prev.filter(msg => msg.id !== searchingMsg.id));
-
-      console.error("API Error:", error);
-      let errorMessage = "서버 연결 중 오류가 발생했습니다.";
-      
-      if (error.response) {
-        // 서버가 응답을 반환한 경우
-        console.error("서버 응답:", error.response.data);
-        errorMessage = `서버 오류: ${error.response.data.error || error.response.statusText}`;
-      } else if (error.request) {
-        // 요청은 보냈지만 응답을 받지 못한 경우
-        console.error("서버 응답 없음:", error.request);
-        errorMessage = "서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.";
-      } else {
-        // 요청 설정 중 오류가 발생한 경우
-        console.error("요청 설정 오류:", error.message);
-        errorMessage = `요청 오류: ${error.message}`;
-      }
-      
-      setMessages(prev => [...prev, {
-        id: Date.now(),
-        user: "partner",
-        text: errorMessage
+    } catch (e) {
+      setMessages(m => m.filter(x => x.id !== loadingMsg.id));
+      setMessages(m => [...m, {
+        id:Date.now(), user:"partner",
+        text:"서버 연결 중 오류가 발생했습니다."
       }]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // (todo-list: 추가 추천 버튼 메시지 추가)
-  const handleMoreRecommendations = async () => {
-    if (isLoading || !currentMessage) return;
+  // --------------------------------
+  // 2) 추가 요청 (is_more_request: true)
+  // --------------------------------
+// FloatingChat.jsx 내의 handleMoreRecommendations 함수 수정
+const handleMoreRecommendations = async () => {
+  if (isLoading || !currentMessage) return;
 
-    // (todo-list: 사용자 메시지 추가 (currentMessage 재사용))
-    const userMsg = { id: Date.now(), user: "user", text: currentMessage };
-    setMessages(prev => [...prev, userMsg]);
+  setIsLoading(true);
 
-    setIsLoading(true);
+  // '검색 중' 메시지 추가
+  const searchingMsg = {
+    id: Date.now() + Math.random(),
+    user: "partner",
+    text: "장소를 탐색하고 있습니다."
+  };
+  setMessages(prev => [...prev, searchingMsg]);
 
-    // 검색 중 메시지 추가
-    const searchingMsg = {
-      id: Date.now() + Math.random(),
-      user: "partner",
-      text: "장소를 탐색하고 있습니다."
-    };
-    setMessages(prev => [...prev, searchingMsg]);
+  try {
+    const { data } = await axios.post('/chat', {
+      latitude: location.latitude,
+      longitude: location.longitude,
+      user_input: currentMessage,           // 실제 API엔 이전 메시지 전달
+      displayed_place_ids: Array.from(displayedPlaceIds),
+      is_more_request: true
+    });
+    console.log("추가 추천 결과:", data.recommendations);
 
-    try {
-      const response = await axios.post(
-        "/chat",
+    // '검색 중' 메시지 제거
+    setMessages(prev => prev.filter(m => m.id !== searchingMsg.id));
+
+    if (data.recommendations?.length) {
+      const newIds = data.recommendations.map(r => r.place_id);
+      setDisplayedPlaceIds(prev => new Set([...prev, ...newIds]));
+
+      setMessages(prev => [
+        ...prev,
         {
-          latitude: location.latitude,
-          longitude: location.longitude,
-          user_input: currentMessage,
-          displayed_place_ids: Array.from(displayedPlaceIds)
-        },
-        {
-          headers: {
-            "X-USER-ID": "test-user-id",
-            "Content-Type": "application/json"
-          }
-        }
-      );
-
-      // 검색 중 메시지 제거
-      setMessages(prev => prev.filter(msg => msg.id !== searchingMsg.id));
-
-      if (response.data && response.data.recommendations && response.data.recommendations.length > 0) {
-        // (todo-list: 새로운 추천 장소들의 ID를 displayedPlaceIds에 추가)
-        const newPlaceIds = response.data.recommendations.map(place => place.place_id);
-        setDisplayedPlaceIds(prev => new Set([...prev, ...newPlaceIds]));
-
-        // 추천 장소 메시지 추가
-        const recommendationsMsg = {
-          id: Date.now() + Math.random(),
+          id: Date.now() + 1,
           user: "partner",
           text: "추가 장소를 찾았어요!",
-          recommendations: response.data.recommendations
-        };
-        setMessages(prev => [...prev, recommendationsMsg]);
-
-        // (todo-list: 추가 추천 버튼 메시지 추가)
-        setMessages(prev => [...prev, {
-          id: Date.now() + Math.random(),
+          recommendations: data.recommendations
+        },
+        {
+          id: Date.now() + 2,
           user: "partner",
           text: "더 많은 장소를 추천받으시겠어요?",
           showMoreButton: true
-        }]);
-      } else { 
-        setMessages(prev => [...prev, {
+        }
+      ]);
+    } else {
+      setMessages(prev => [
+        ...prev,
+        {
           id: Date.now(),
           user: "partner",
           text: "더 이상 추천할 장소가 없습니다."
-        }]);
-      }
-    } catch (error) {
-      // 검색 중 메시지 제거
-      setMessages(prev => prev.filter(msg => msg.id !== searchingMsg.id));
-
-      console.error("API Error:", error);
-      setMessages(prev => [...prev, {
+        }
+      ]);
+    }
+  } catch (e) {
+    setMessages(prev => prev.filter(m => m.id !== searchingMsg.id));
+    setMessages(prev => [
+      ...prev,
+      {
         id: Date.now(),
         user: "partner",
-        text: "서버 연결 중 오류가 발생했습니다."
-      }]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+        text: "카테고리를 명확히 입력해주세요!"
+      }
+    ]);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
+  // 렌더링
   return (
     <>
-      <FloatingButton onClick={() => setOpen(true)}>
-        <img src={chatbotImg} alt="chat" />
-      </FloatingButton>
+      <FloatingButton onClick={()=>setOpen(true)}><img src={chatbotImg} alt="chat" /></FloatingButton>
       {open && (
-        <ChatModalBackdrop onClick={() => !isLoading && setOpen(false)}>
-          <ChatModal onClick={e => e.stopPropagation()}>
+        <ChatModalBackdrop onClick={()=>!isLoading&&setOpen(false)}>
+          <ChatModal onClick={e=>e.stopPropagation()}>
             <ChatHeader>
-              <Avatar src={chatbotImg} alt="상대" />
+              <Avatar src={chatbotImg} alt="트립이" />
               <HeaderName>트립이</HeaderName>
-              <CloseBtn onClick={() => setOpen(false)}>×</CloseBtn>
+              <CloseBtn onClick={()=>setOpen(false)}>×</CloseBtn>
             </ChatHeader>
             <ChatBody>
               {messages.map(msg => (
-                <MsgRow key={msg.id} $isUser={msg.user === "user"}>
-                  {(msg.user === "partner") && <AvatarMini src={chatbotImg} alt="트립이" />}
-                  <MsgBubble $isUser={msg.user === "user"}>
+                <MsgRow key={msg.id} $isUser={msg.user==="user"}>
+                  {msg.user==="partner" && <AvatarMini src={chatbotImg} />}
+                  <MsgBubble $isUser={msg.user==="user"}>
                     {msg.text}
-                    {msg.text === "장소를 탐색하고 있습니다." && (
-                      <LoadingDots>{loadingDots}</LoadingDots>
-                    )}
-                    {msg.recommendations && msg.recommendations.map((rec, index) => (
-                      <PlaceCard key={index}>
-                        <PlaceTitle>{rec.title}</PlaceTitle>
-                        <PlaceInfo>📍 {rec.address}</PlaceInfo>
-                        <PlaceInfo>⭐ {rec.rating}/5</PlaceInfo>
-                        <PlaceInfo>📏 {rec.distance}m</PlaceInfo>
-                        <PlaceInfo>⏱️ {rec.transit_time}</PlaceInfo>
-                        <DirectionsButton 
-                          href={rec.directions_url} 
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
+                    {msg.recommendations?.map((r,i)=>(
+                      <PlaceCard key={i}>
+                        <PlaceTitle>{r.title}</PlaceTitle>
+                        <PlaceInfo>📍 {r.address}</PlaceInfo>
+                        <PlaceInfo>⭐ {r.rating}</PlaceInfo>
+                        <PlaceInfo>📏 {r.distance}m</PlaceInfo>
+                        <PlaceInfo>⏱️ {r.transit_time}</PlaceInfo>
+                        <DirectionsButton href={r.directions_url} target="_blank">
                           🚌 길찾기
                         </DirectionsButton>
                       </PlaceCard>
                     ))}
                     {msg.showMoreButton && (
-                      <MoreButton 
-                        onClick={(e) => {
+                      <MoreButton
+                        onClick={e => {
                           e.stopPropagation();
+                          setMessages(prev => [
+                            ...prev,
+                            { id: Date.now(), user: "user", text: "더 많은 장소 추천받기" }
+                          ]);
+                          // 실제 API 호출
                           handleMoreRecommendations();
-                        }} 
+                        }}
                         disabled={isLoading}
                       >
-                        더 많은 장소 추천받기 
+                        더 많은 장소 추천받기
                       </MoreButton>
                     )}
                   </MsgBubble>
-                  {(msg.user === "user") && <AvatarMini src={userImg} alt="나" />}
+                  {msg.user==="user" && <AvatarMini src={userImg} />}
                 </MsgRow>
               ))}
-              <div ref={chatEndRef} />
+              <div ref={chatEndRef}/>
             </ChatBody>
             <ChatInputBox>
               <ChatInput
-                placeholder={isLoading ? "검색 중..." : "메시지를 입력하세요."}
                 value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && handleSend()}
+                onChange={e=>setInput(e.target.value)}
+                onKeyDown={e=>e.key==="Enter"&&handleSend()}
+                placeholder={isLoading?"검색 중...":"메시지를 입력하세요."}
               />
-              <SendBtn onClick={handleSend} disabled={isLoading} />
+              <SendBtn onClick={handleSend} disabled={isLoading}/>
             </ChatInputBox>
           </ChatModal>
         </ChatModalBackdrop>
