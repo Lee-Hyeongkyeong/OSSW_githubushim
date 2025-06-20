@@ -39,4 +39,8 @@ def create_app():
     from .routes import chatbot_bp
     app.register_blueprint(chatbot_bp, url_prefix="/api/chatbot")
 
+    @app.route("/")
+    def index():
+        return "Chatbot API is running.", 200
+
     return app
