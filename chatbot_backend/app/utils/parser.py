@@ -1,4 +1,4 @@
-#parser.py
+#utils/parser.py
 """
 자연어 파싱 유틸리티 모듈
 - OpenAI API를 사용한 자연어 처리
@@ -111,7 +111,7 @@ def extract_parameters_with_openai(user_input, last_request=None):
     if user_input in ("more_recommendations", "더 많은 장소 추천받기", "더보기") and last_request:
         return {
             "category": last_request.get('categories', [''])[0] or '',
-            "radius": last_request.get('radius', 2000),
+            "radius": last_request.get('radius', 1000),
             "sort_by": last_request.get('sort_by', 'rating'),
             "is_more_request": True
         }
@@ -119,7 +119,7 @@ def extract_parameters_with_openai(user_input, last_request=None):
     prompt = f"""
     사용자의 요청 문장에서 아래 JSON을 추출해줘.
     - category: 추천 카테고리 (예: 카페, 맛집, 박물관 등)
-    - radius: 숫자(미터 단위, 없으면 2000)
+    - radius: 숫자(미터 단위, 없으면 1000)
     - sort_by: "distance" 또는 "rating"(없으면 "rating")
     입력: "{user_input}"
     출력:
@@ -141,7 +141,7 @@ def extract_parameters_with_openai(user_input, last_request=None):
 
     return {
         "category": result.get("category", "").strip(),
-        "radius": int(result.get("radius", 2000)),
+        "radius": int(result.get("radius", 1000)),
         "sort_by": result.get("sort_by", "rating"),
         "is_more_request": False
     }

@@ -1,7 +1,5 @@
 """
-데이터베이스 모델 정의 모듈
-- SQLAlchemy 인스턴스 생성
-- 추천 장소 기록을 위한 모델 정의
+models.py
 """
 
 from flask_sqlalchemy import SQLAlchemy

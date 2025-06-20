@@ -1,7 +1,5 @@
 """
-위치 관련 서비스 모듈
-- 위치 정보 검증
-- 위치 데이터 처리
+services/location.py
 """
 
 from flask import request, jsonify
