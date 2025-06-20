@@ -53,7 +53,7 @@ def chat():
     latitude = data.get('latitude')
     longitude = data.get('longitude')
     user_input = data.get('user_input', '')
-    is_more_request = data.get('is_more_request', False)
+    is_more_request = False
     display_message = data.get('display_message', user_input)
 
     user_id = request.headers.get('X-USER-ID', str(uuid.uuid4()))
@@ -67,7 +67,7 @@ def chat():
     categories = parsed["search_keywords"]
     radius = parsed.get("radius", 2000)
     sort_by = parsed.get("sort_by", "rating")
-    is_more_request = parsed.get("is_more_request", False)
+    is_more_request = parsed["is_more_request"]
 
     # 위치 검증
     if not (latitude and longitude and validate_location(latitude, longitude)):
@@ -95,9 +95,14 @@ def chat():
     all_recommendations = []
 
     # 이미 추천한 place_id 목록을 한 번에 조회
-    prev_place_ids = set(db.session.query(RecommendedPlace.place_id)
-                        .filter(RecommendedPlace.user_id == user_id)
-                        .all())
+    # 올바른 문자열 집합 생성
+    prev_place_ids = {
+        pid for (pid,) in 
+        db.session.query(RecommendedPlace.place_id)
+          .filter(RecommendedPlace.user_id == user_id)
+          .all()
+    }
+    seen_ids = set(prev_place_ids)
 
     # 검색 시작 알림
     search_status = {
@@ -107,7 +112,7 @@ def chat():
 
     for category in categories:
         next_page_token = None
-        max_pages = 3
+        max_pages = 6
         for _ in range(max_pages):
             places_json = google_api.search_places(
                 category,
@@ -137,30 +142,32 @@ def chat():
                         else:
                             break
             
-            # 필터링된 결과만 처리
+            # 1) 거리순으로 정렬된 후보 중 상위 5개만 선택
+            filtered_items.sort(key=lambda x: x[1])  # x = (item, distance)
+            top5 = filtered_items[:5]
+
+            # 2) 그 5개에 대해서만 길찾기 API 호출
             recommendations = []
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-                future_to_place = {}
-                for item, distance_val in filtered_items:
+                futures = []
+                for item, distance_val in top5:
                     place_id = item.get('place_id')
-                    if place_id in prev_place_ids:
+                    # 이전 호출이나 이번 호출에 이미 담겼으면 건너뛴다
+                    if place_id in seen_ids:
                         continue
-                        
-                    dest_lat = item['geometry']['location'].get('lat')
-                    dest_lng = item['geometry']['location'].get('lng')
+                    dest_lat = item['geometry']['location']['lat']
+                    dest_lng = item['geometry']['location']['lng']
                     origin = f"{latitude},{longitude}"
                     destination = f"{dest_lat},{dest_lng}"
-                    
-                    future = executor.submit(get_transit_info, google_api, origin, destination)
-                    future_to_place[future] = (item, distance_val, dest_lat, dest_lng)
-                
-                for future in concurrent.futures.as_completed(future_to_place):
-                    item, distance_val, dest_lat, dest_lng = future_to_place[future]
+                    futures.append((executor.submit(get_transit_info, google_api, origin, destination),
+                                    item, distance_val, dest_lat, dest_lng))
+
+                for future, item, distance_val, dest_lat, dest_lng in futures:
                     try:
                         transit_time = future.result()
-                        
+                        # recommendation 생성 & DB 저장
                         rating = item.get('rating', 0)
-                        recommendation = {
+                        rec = {
                             'category': category,
                             'title': item.get('name', ''),
                             'address': item.get('vicinity', ''),
@@ -169,21 +176,23 @@ def chat():
                             'transit_time': transit_time,
                             'directions_url': make_gmaps_directions_url(
                                 latitude, longitude, dest_lat, dest_lng, mode="transit"
-                            )
+                            ),
+                            'place_id': item.get('place_id')
                         }
-                        recommendations.append(recommendation)
+                        recommendations.append(rec)
                         db.session.add(RecommendedPlace(user_id=user_id, place_id=item.get('place_id')))
+                        seen_ids.add(item.get('place_id'))
                     except Exception as e:
-                        print(f"Error processing place: {str(e)}")
+                        print(f"Error processing place: {e}")
             
             db.session.commit()
             all_recommendations.extend(recommendations)
 
             next_page_token = places_json.get('next_page_token')
-            if not next_page_token:
-                break
-                
-            time.sleep(2)
+        if not next_page_token:
+            break
+        # 짧게만 대기하거나 제거
+        # time.sleep(0.5)
 
     # 정렬 기준에 따라 정렬
     if sort_by == 'distance':
@@ -191,12 +200,20 @@ def chat():
     else:  # 기본값: 평점순
         all_recommendations.sort(key=lambda x: x.get('rating', 0) if x.get('rating') != '-' else 0, reverse=True)
 
+    if is_more_request:
+        # 이미 보낸 개수만큼 offset
+        offset = len(prev_place_ids)
+        result = all_recommendations[offset : offset + 5]
+    else:
+        # 첫 호출일 땐 처음 5개
+        result = all_recommendations[:5]
+
     # 검색 완료 상태로 변경
     search_status['is_searching'] = False
     search_status['message'] = '검색이 완료되었습니다.'
 
     return jsonify({
-        'recommendations': all_recommendations[:5],
+        'recommendations': result,
         'last_request': user_last_requests.get(user_id, {}),
         'display_message': display_message,
         'search_status': search_status
@@ -218,10 +235,6 @@ def reset_session():
 
 @chatbot_bp.route('/health', methods=['GET'])
 def health_check():
-    """
-    간단한 상태 확인용 엔드포인트입니다.
-    nginx → Flask 프록시가 제대로 연결되었는지 확인할 때 사용하세요.
-    """
     return jsonify({
         'status': 'ok',
         'service': 'chatbot-api',
