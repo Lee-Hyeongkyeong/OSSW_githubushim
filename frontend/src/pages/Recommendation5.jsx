@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import API_CONFIG from '../config/api';
 
 const tabLabels = ["맛집", "체험 & 액티비티", "역사 & 문화", "힐링 & 자연", "관광"];
 // 예시 이미지 데이터 (실제 서비스에 맞게 교체)
@@ -21,7 +22,7 @@ const RecommendationGridMain = () => {
   const itemsPerPage = 6;
 
   useEffect(() => {
-    fetch(`https://127.0.0.1:5000/api/recommend/details?city=${city}`)
+    fetch(`${API_CONFIG.BASE_URL}/api/recommend/details?city=${city}`)
       .then(res => res.json())
       .then(data => {
         setGroup1(data.group1.slice(0, 100));

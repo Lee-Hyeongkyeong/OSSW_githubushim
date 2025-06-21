@@ -4,6 +4,7 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import point from '../assets/pic/finalpoint.png';
 import img1 from '../assets/pic/survey-1.png'
 import { Link, useNavigate } from 'react-router-dom';
+import API_CONFIG from '../config/api';
 
 const question = 'Q. 당신이 여행에서 가장 중요하게 생각하는 것은?';
 const initialItems = [
@@ -41,7 +42,7 @@ const Survey1_1 = () => {
         throw new Error('Travel style not found');
       }
 
-      const response = await fetch("https://127.0.0.1:5000/api/survey", {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/survey`, {
         method: "POST",
         credentials: "include",
         headers: {

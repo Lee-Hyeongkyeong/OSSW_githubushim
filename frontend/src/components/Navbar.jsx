@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from '../assets/pic/trippick-logo-white.png';
+import API_CONFIG from '../config/api';
 
 // //구글 로고(공식 SVG)
 // const GoogleIcon = () => (
@@ -32,7 +33,7 @@ const Navbar = () => {
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
-        const response = await fetch("https://127.0.0.1:5000/api/auth/check", {
+        const response = await fetch(`${API_CONFIG.BASE_URL}/api/auth/check`, {
           method: "GET",
           credentials: "include",
           headers: {
@@ -62,14 +63,14 @@ const Navbar = () => {
 
   const handleGoogleLogin = () => {
     const popup = window.open(
-      "https://127.0.0.1:5000/", // 백엔드 OAuth 엔드포인트
+      `${API_CONFIG.BASE_URL}/`, // 백엔드 OAuth 엔드포인트
       "googleLogin",
       "width=500,height=600"
     );
 
     // 팝업에서 인증 완료 후, window.opener.postMessage로 부모 창에 결과 전달 가능
     window.addEventListener("message", (event) => {
-      if (event.origin !== "https://127.0.0.1:5000") return;
+      if (event.origin !== API_CONFIG.BASE_URL) return;
       
       if (event.data && event.data.type === "LOGIN_SUCCESS") {
         setIsLoggedIn(true);
@@ -80,7 +81,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      const res = await fetch("https://127.0.0.1:5000/logout", {
+      const res = await fetch(`${API_CONFIG.BASE_URL}/logout`, {
         method: "GET",
         credentials: "include",
         mode: 'cors',
@@ -108,7 +109,7 @@ const Navbar = () => {
     
     try {
       // 로그인 상태 확인
-      const authResponse = await fetch("https://127.0.0.1:5000/api/auth/check", {
+      const authResponse = await fetch(`${API_CONFIG.BASE_URL}/api/auth/check`, {
         method: "GET",
         credentials: "include",
         headers: {
@@ -129,7 +130,7 @@ const Navbar = () => {
       }
 
       // 로그인된 경우에만 설문 이력 확인
-      const surveyResponse = await fetch("https://127.0.0.1:5000/api/survey/history", {
+      const surveyResponse = await fetch(`${API_CONFIG.BASE_URL}/api/survey/history`, {
         method: "GET",
         credentials: "include",
         headers: {

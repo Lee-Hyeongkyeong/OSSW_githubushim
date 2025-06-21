@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
 import ImageSlider from '../components/ImageSlider';
+import API_CONFIG from '../config/api';
 // import img1 from '../assets/pic/home-1.png';
 
 const Home = () => {
@@ -16,7 +17,7 @@ const Home = () => {
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
-        const response = await fetch("https://127.0.0.1:5000/api/auth/check", { 
+        const response = await fetch(`${API_CONFIG.BASE_URL}/api/auth/check`, { 
           credentials: "include",
           method: 'GET',
           headers: {
@@ -50,7 +51,7 @@ const Home = () => {
     try {
       console.log('Checking login status...'); // Debug log
       // 로그인 상태 확인
-      const loginResponse = await fetch("https://127.0.0.1:5000/api/auth/check", {
+      const loginResponse = await fetch(`${API_CONFIG.BASE_URL}/api/auth/check`, {
         credentials: "include",
         method: 'GET',
         headers: {
@@ -79,7 +80,7 @@ const Home = () => {
 
       console.log('User is logged in, checking survey history...'); // Debug log
       // 설문 이력 확인
-      const surveyResponse = await fetch("https://127.0.0.1:5000/api/survey/history", {
+      const surveyResponse = await fetch(`${API_CONFIG.BASE_URL}/api/survey/history`, {
         credentials: "include",
         method: 'GET',
         headers: {

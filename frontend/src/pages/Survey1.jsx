@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
 import point from '../assets/pic/finalpoint.png';
 import img1 from '../assets/pic/survey-1.png'
+import API_CONFIG from '../config/api';
 
 const question = 'Q. 당신의 여행 스타일은 무엇인가요?';
 const options = [
@@ -25,7 +26,7 @@ const Survey1 = () => {
       // localStorage에 travel_style_1 저장
       localStorage.setItem('travel_style_1', selectedStyle);
 
-      const response = await fetch("https://127.0.0.1:5000/api/survey/", {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/survey/`, {
         method: "POST",
         credentials: "include",
         headers: {

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useLocation, useNavigate } from "react-router-dom";
 import SurveyLoading from './SurveyLoading';
+import API_CONFIG from '../config/api';
 
 const RecommendationCourseMain = () => {
   const location = useLocation();
@@ -20,7 +21,7 @@ const RecommendationCourseMain = () => {
   
   useEffect(() => {
     setLoading(true);
-    fetch(`https://127.0.0.1:5000/api/recommend/contents?city=${city}`)
+    fetch(`${API_CONFIG.BASE_URL}/api/recommend/contents?city=${city}`)
       .then(res => res.json())
       .then(data => {
         setGroup1(data.group1.slice(0, 4));

@@ -1,6 +1,8 @@
+import React from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import Navbar from '../Navbar';
+import API_CONFIG from '../../config/api';
 
 // Mock fetch
 global.fetch = jest.fn();
@@ -81,7 +83,7 @@ describe('Navbar Component', () => {
 
     // Then: Google login popup should open
     expect(mockOpen).toHaveBeenCalledWith(
-      'https://127.0.0.1:5000/',
+      `${API_CONFIG.BASE_URL}/`,
       'googleLogin',
       'width=500,height=600'
     );
@@ -107,7 +109,7 @@ describe('Navbar Component', () => {
     // Then: Logout API should be called and alert shown
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith(
-        'https://127.0.0.1:5000/logout',
+        `${API_CONFIG.BASE_URL}/logout`,
         expect.objectContaining({
           method: 'GET',
           credentials: 'include',

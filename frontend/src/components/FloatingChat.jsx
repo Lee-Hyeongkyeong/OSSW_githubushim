@@ -3,9 +3,10 @@ import styled from "styled-components";
 import axios from "axios";
 import chatbotImg from "../assets/pic/chatbot.png";
 import userImg from "../assets/pic/userImg.png"
+import API_CONFIG from '../config/api';
 
 // axios 기본 설정
-axios.defaults.baseURL = 'https://localhost:5000/api/chatbot';
+axios.defaults.baseURL = API_CONFIG.CHATBOT_BASE_URL;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 axios.defaults.headers.common['X-USER-ID'] = 'test-user-id';
 

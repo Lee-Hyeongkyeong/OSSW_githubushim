@@ -76,13 +76,11 @@ export default function About() {
         </MainSection>
       </AnimatedSection>
 
-      {/* 배너 이미지는 그대로 */}
-      <ImageBanner>
-        <MainImg src={img1} alt="여행 배너" />
-      </ImageBanner>
-
       {/* Content 섹션: AnimatedSection으로 교체 */}
       <AnimatedSection ref={contentRef} visible={contentVisible}>
+        <ImageBanner>
+          <MainImg src={img1} alt="여행 배너" />
+        </ImageBanner>
         <ContentSection>
           <ContentTitle>어떤 여행을 원하고 있나요?</ContentTitle>
           <ContentText>

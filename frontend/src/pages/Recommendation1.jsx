@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
+import API_CONFIG from '../config/api';
 
 const cityList = [
   {
@@ -102,7 +103,7 @@ const RecommendationMain = () => {
 
   // 2) 마운트 시 한 번만 호출
   useEffect(() => {
-    fetch("https://127.0.0.1:5000/api/userinfo", {
+    fetch(`${API_CONFIG.BASE_URL}/api/userinfo`, {
       credentials: "include" // 세션 기반 로그인일 경우 필요
     })
       .then((res) => res.json())
@@ -117,7 +118,7 @@ const RecommendationMain = () => {
       setError(null);
 
       try {
-        const res = await fetch("https://127.0.0.1:5000/api/recommend/cities", {
+        const res = await fetch(`${API_CONFIG.BASE_URL}/api/recommend/cities`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",  // 로그인 세션 쿠키가 필요하다면 추가

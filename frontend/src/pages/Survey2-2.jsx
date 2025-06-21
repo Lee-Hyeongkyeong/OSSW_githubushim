@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import point from '../assets/pic/finalpoint.png';
 import img1 from '../assets/pic/survey-1.png';
 import { Link, useNavigate } from 'react-router-dom';
+import API_CONFIG from '../config/api';
 
 const options = [
   { key: '스테디셀러', label: '언제나 핫한 여행지' },
@@ -45,7 +46,7 @@ const Survey2_2 = () => {
         .filter(([_, isSelected]) => isSelected)
         .map(([key]) => key);
 
-      const response = await fetch("https://127.0.0.1:5000/api/survey", {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/survey`, {
         method: "POST",
         credentials: "include",
         headers: {

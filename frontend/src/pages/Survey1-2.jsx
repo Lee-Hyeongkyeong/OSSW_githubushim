@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import point from '../assets/pic/finalpoint.png';
 import img1 from '../assets/pic/survey-1.png'
 import { Link, useNavigate } from 'react-router-dom';
+import API_CONFIG from '../config/api';
 
 const question = 'Q. 여행지에서 가장 먼저 찾아보는 것은 무엇인가요?';
 const options = [
@@ -43,7 +44,7 @@ const Survey1_2 = () => {
       // localStorage에 travel_style_2 저장
       localStorage.setItem('travel_style_2', selectedStyle);
 
-      const response = await fetch("https://127.0.0.1:5000/api/survey/", {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/survey/`, {
         method: "POST",
         credentials: "include",
         headers: {
