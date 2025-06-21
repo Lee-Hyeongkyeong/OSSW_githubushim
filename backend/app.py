@@ -10,9 +10,6 @@ from backend.recommend.content_routes    import content_recommend_bp
 from backend.recommend.detail_routes    import detail_recommend_bp
 from backend.chatbot_proxy import proxy_bp
 
-BASE_URL = os.getenv("BASE_URL")
-REDIRECT_URI = os.getenv("REDIRECT_URI")
-
 #필요시 API 추가
 #from googleLogin.views import google_bp 
 #from user             import user_bp
@@ -47,6 +44,9 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv() # .env 파일 읽어오기
+
+BASE_URL = os.getenv("BASE_URL")
+REDIRECT_URI = os.getenv("REDIRECT_URI")
 
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
