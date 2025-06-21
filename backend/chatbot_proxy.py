@@ -25,7 +25,7 @@ def proxy(path):
             headers=headers,
             params=request.args,
             json=request.get_json(silent=True),
-            timeout=15
+            timeout=20
         )
         return (resp.content, resp.status_code, resp.headers.items())
     except requests.RequestException as e:
