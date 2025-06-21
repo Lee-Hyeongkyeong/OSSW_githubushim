@@ -45,6 +45,9 @@ from dotenv import load_dotenv
 
 load_dotenv() # .env 파일 읽어오기
 
+BASE_URL = os.getenv("BASE_URL")
+REDIRECT_URI = os.getenv("REDIRECT_URI")
+
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 
@@ -193,7 +196,7 @@ def login():
     # scopes that let you retrieve user's profile from Google
     request_uri = client.prepare_request_uri(
         authorization_endpoint,
-        redirect_uri=request.base_url + "/callback",
+        redirect_uri=REDIRECT_URI,
         scope=["openid", "email", "profile"],
     )
     return redirect(request_uri)
@@ -221,7 +224,7 @@ def callback():
     token_url, headers, body = client.prepare_token_request(
         token_endpoint,
         authorization_response=request.url,
-        redirect_url=request.base_url,
+        redirect_url=REDIRECT_URI,
         code=code,
     )
     token_response = requests.post(

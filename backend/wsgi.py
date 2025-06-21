@@ -27,4 +27,12 @@ if __name__ == "__main__":
     #    ssl_context=(cert_path, key_path),
     #    debug=True
     #)
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
+   # app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
+    from waitress import serve
+    serve(
+        app,
+        host="0.0.0.0",
+        port=int(os.getenv("PORT", 5000)),
+        threads=4  # 필요에 따라 워커 스레드 수 조정
+    )
+    
