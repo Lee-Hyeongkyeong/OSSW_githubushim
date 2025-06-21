@@ -9,6 +9,7 @@ from backend.recommend.city_routes    import city_recommend_bp
 from backend.recommend.content_routes    import content_recommend_bp
 from backend.recommend.detail_routes    import detail_recommend_bp
 from backend.chatbot_proxy import proxy_bp
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 #필요시 API 추가
 #from googleLogin.views import google_bp 
@@ -28,8 +29,6 @@ from flask_cors import CORS
 # Flask app setup
 app = Flask(__name__)
 # 배포 중 http 통신 문제 해결 시도
-from werkzeug.middleware.proxy_fix import ProxyFix
-
 app.wsgi_app = ProxyFix(
     app.wsgi_app,
     x_for=1,       # X-Forwarded-For
