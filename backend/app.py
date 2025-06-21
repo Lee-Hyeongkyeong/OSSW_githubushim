@@ -27,6 +27,17 @@ import requests
 from flask_cors import CORS
 # Flask app setup
 app = Flask(__name__)
+# 배포 중 http 통신 문제 해결 시도
+from werkzeug.middleware.proxy_fix import ProxyFix
+
+app.wsgi_app = ProxyFix(
+    app.wsgi_app,
+    x_for=1,       # X-Forwarded-For
+    x_proto=1,     # X-Forwarded-Proto
+    x_host=1,      # X-Forwarded-Host
+    x_prefix=1     # X-Forwarded-Prefix (필요시)
+)
+
 app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
 CORS(
     app,
