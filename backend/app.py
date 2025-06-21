@@ -30,7 +30,7 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
 CORS(
     app,
-    resources={r"/*": {"origins": ["http://localhost:3000"]}},
+    resources={r"/*": {"origins": ["https://trippick.vercel.app"]}},
     supports_credentials=True,
     allow_headers=["Content-Type", "Authorization", "Accept"],
     expose_headers=["Content-Type", "Authorization"],
@@ -114,7 +114,7 @@ def after_request(response):
     if 'Access-Control-Allow-Origin' in response.headers:
         del response.headers['Access-Control-Allow-Origin']
     
-    response.headers['Access-Control-Allow-Origin'] = 'http://localhost:3000'
+    response.headers['Access-Control-Allow-Origin'] = 'https://trippick.vercel.app'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization,Accept,X-User-Id'
     response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS'
     response.headers['Access-Control-Allow-Credentials'] = 'true'
@@ -313,7 +313,7 @@ def logout():
         
         # Add CORS headers for cookie deletion
         response.headers['Access-Control-Allow-Credentials'] = 'true'
-        response.headers['Access-Control-Allow-Origin'] = 'http://localhost:3000'
+        response.headers['Access-Control-Allow-Origin'] = 'https://trippick.vercel.app'
         
         # Clear both session and remember_token cookies with proper settings
         for cookie_name in ['session', 'remember_token']:
