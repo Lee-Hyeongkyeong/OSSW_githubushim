@@ -9,14 +9,14 @@ from backend.recommend.city_routes    import city_recommend_bp
 from backend.recommend.content_routes    import content_recommend_bp
 from backend.recommend.detail_routes    import detail_recommend_bp
 from backend.chatbot_proxy import proxy_bp
-from werkzeug.middleware.proxy_fix import ProxyFix
-from flask_talisman import Talisman
 
 #필요시 API 추가
 #from googleLogin.views import google_bp 
 #from user             import user_bp
 
 from flask import Flask, redirect, request, url_for, render_template, jsonify, session
+from werkzeug.middleware.proxy_fix import ProxyFix
+from flask_talisman import Talisman
 from flask_login import (
     LoginManager,
     current_user,
@@ -31,6 +31,9 @@ from flask_cors import CORS
 # Flask app setup
 app = Flask(__name__)
 
+# 배포 중 http 통신 문제 해결 시도
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_for=1)
+
 @app.before_request
 def set_scheme_from_cf_visitor():
     cf_visitor = request.headers.get("CF-Visitor")
@@ -42,14 +45,6 @@ def set_scheme_from_cf_visitor():
         except Exception:
             pass
             
-# 배포 중 http 통신 문제 해결 시도
-app.wsgi_app = ProxyFix(
-    app.wsgi_app,
-    x_for=3,       # X-Forwarded-For
-    x_proto=3,     # X-Forwarded-Proto
-    x_host=3,      # X-Forwarded-Host
-    x_prefix=3     # X-Forwarded-Prefix (필요시)
-)
 
 # Talisman(app, force_https=True)
 
