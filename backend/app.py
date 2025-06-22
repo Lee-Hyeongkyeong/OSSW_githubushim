@@ -172,6 +172,8 @@ app.register_blueprint(detail_recommend_bp)
 app.register_blueprint(proxy_bp, url_prefix="/api/chatbot")
 
 
+# 환경변수에서 프론트엔드 URL 가져오기
+FRONTEND_URL = os.getenv("FRONTEND_URL", "https://trippick.vercel.app")
 
 @app.route("/")
 def index():
@@ -180,7 +182,8 @@ def index():
             'success.html',
             name=current_user.name,
             email=current_user.email,
-            profile_pic=current_user.profile_pic
+            profile_pic=current_user.profile_pic,
+            frontend_url=FRONTEND_URL
         )
     else:
         return redirect(url_for("login"))
@@ -299,7 +302,8 @@ def callback():
         'success.html',
         name=users_name,
         email=users_email,
-        profile_pic=picture
+        profile_pic=picture,
+        frontend_url=FRONTEND_URL
     )
 
 # @app.route("/logout", methods=['GET', 'OPTIONS'])
