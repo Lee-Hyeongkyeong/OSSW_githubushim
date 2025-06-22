@@ -4,6 +4,10 @@ import os
 import sqlite3
 from datetime import timedelta
 
+# OAuth 2.0 HTTPS 요구사항 비활성화 (가장 먼저 설정)
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+print("OAUTHLIB_INSECURE_TRANSPORT set to:", os.environ.get('OAUTHLIB_INSECURE_TRANSPORT'))
+
 from backend.survey.survey    import survey_bp
 from backend.recommend.city_routes    import city_recommend_bp
 from backend.recommend.content_routes    import content_recommend_bp
@@ -28,11 +32,6 @@ from oauthlib.oauth2 import WebApplicationClient
 import requests
 from flask_cors import CORS
 
-# OAuth 2.0 HTTPS 요구사항 비활성화 (개발/테스트 환경용)
-# 프로덕션 환경에서는 이 설정을 제거하거나 환경변수로 제어
-if os.getenv('FLASK_ENV') == 'development' or os.getenv('OAUTHLIB_INSECURE_TRANSPORT'):
-    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
-
 # Flask app setup
 app = Flask(__name__)
 
@@ -41,6 +40,15 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_for=1)
 
 @app.before_request
 def set_scheme_from_cf_visitor():
+    # 모든 요청 로깅
+    print(f"=== REQUEST LOG ===")
+    print(f"Method: {request.method}")
+    print(f"URL: {request.url}")
+    print(f"Path: {request.path}")
+    print(f"Headers: {dict(request.headers)}")
+    print(f"Args: {dict(request.args)}")
+    print(f"==================")
+    
     cf_visitor = request.headers.get("CF-Visitor")
     if cf_visitor:
         try:
@@ -180,6 +188,16 @@ app.register_blueprint(proxy_bp, url_prefix="/api/chatbot")
 # 환경변수에서 프론트엔드 URL 가져오기
 FRONTEND_URL = os.getenv("FRONTEND_URL", "https://trippick.vercel.app")
 
+# 환경 변수 디버깅
+print("=== ENVIRONMENT VARIABLES ===")
+print(f"BASE_URL: {BASE_URL}")
+print(f"REDIRECT_URI: {REDIRECT_URI}")
+print(f"GOOGLE_CLIENT_ID: {GOOGLE_CLIENT_ID}")
+print(f"GOOGLE_CLIENT_SECRET: {'SET' if GOOGLE_CLIENT_SECRET else 'NOT SET'}")
+print(f"FRONTEND_URL: {FRONTEND_URL}")
+print(f"SECRET_KEY: {'SET' if os.getenv('SECRET_KEY') else 'NOT SET'}")
+print("=============================")
+
 @app.route("/")
 def index():
     if current_user.is_authenticated:
@@ -217,9 +235,15 @@ def auth_check():
 
 @app.route("/login")
 def login():
+    print("=== LOGIN FUNCTION CALLED ===")
+    print(f"GOOGLE_CLIENT_ID: {GOOGLE_CLIENT_ID}")
+    print(f"REDIRECT_URI: {REDIRECT_URI}")
+    
     # Find out what URL to hit for Google login
     google_provider_cfg = get_google_provider_cfg()
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
+    
+    print(f"Authorization endpoint: {authorization_endpoint}")
 
     # Use library to construct the request for login and provide
     # scopes that let you retrieve user's profile from Google
@@ -228,6 +252,8 @@ def login():
         redirect_uri=REDIRECT_URI,
         scope=["openid", "email", "profile"],
     )
+    
+    print(f"Redirecting to: {request_uri}")
     return redirect(request_uri)
 
 @app.route("/api/userinfo", methods=["GET"])
@@ -251,12 +277,13 @@ def callback():
     google_provider_cfg = get_google_provider_cfg()
     token_endpoint = google_provider_cfg["token_endpoint"]
 
-    # HTTPS 강제 요구사항 문제 해결을 위해 authorization_response 수정
-    # 프록시 헤더를 확인하여 실제 스키마 결정
-    if request.headers.get("X-Forwarded-Proto") == "https":
-        auth_response = request.url.replace("http://", "https://", 1)
-    else:
-        auth_response = request.url
+    # HTTPS 강제 요구사항 문제 해결을 위해 authorization_response를 강제로 HTTPS로 변환
+    # 프로덕션 환경에서는 항상 HTTPS를 사용해야 함
+    auth_response = request.url
+    if not auth_response.startswith('https://'):
+        auth_response = auth_response.replace('http://', 'https://', 1)
+    
+    print("Modified auth_response:", auth_response)
 
     # Prepare and send request to get tokens! Yay tokens!
     token_url, headers, body = client.prepare_token_request(
