@@ -233,13 +233,13 @@ def userinfo():
 
 @app.route("/login/callback")
 def callback():
-    # Get authorization code Google sent back to you
+    
     code = request.args.get("code")
-
-    # Find out what URL to hit to get tokens that allow you to ask for
-    # things on behalf of a user
+    
     google_provider_cfg = get_google_provider_cfg()
     token_endpoint = google_provider_cfg["token_endpoint"]
+
+    auth_response = request.url.replace("http://", "https://", 1)
 
     # Prepare and send request to get tokens! Yay tokens!
     token_url, headers, body = client.prepare_token_request(
