@@ -8,8 +8,34 @@
 
 import os
 import openai
+import re
 
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+def _parse_radius(value, default=1000):
+    """
+    '500', '500m', '0.8km', '2 km' → 모두 정수 미터 단위로 변환
+    """
+    if value is None:
+        return default
+
+    # 숫자·단위 분리
+    if isinstance(value, (int, float)):
+        return int(value)
+
+    s = str(value).strip().lower()
+    match = re.match(r"([\d\.]+)\s*(km|m)?", s)
+    if not match:
+        return default
+
+    num, unit = match.groups()
+    try:
+        num = float(num)
+    except ValueError:
+        return default
+
+    return int(num * 1000) if unit == "km" else int(num)
+
 
 # ─── 간단 동의어 사전 ─────────────────────────────────
 # key: 사용자가 입력할 수 있는 표현
@@ -138,6 +164,8 @@ def extract_parameters_with_openai(user_input, last_request=None):
         result = json.loads(resp.choices[0].message.content.strip())
     except Exception:
         result = {}
+
+    radius_meters = _parse_radius(result.get("radius"), default=1000)
 
     return {
         "category": result.get("category", "").strip(),
