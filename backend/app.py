@@ -28,6 +28,11 @@ from oauthlib.oauth2 import WebApplicationClient
 import requests
 from flask_cors import CORS
 
+# OAuth 2.0 HTTPS 요구사항 비활성화 (개발/테스트 환경용)
+# 프로덕션 환경에서는 이 설정을 제거하거나 환경변수로 제어
+if os.getenv('FLASK_ENV') == 'development' or os.getenv('OAUTHLIB_INSECURE_TRANSPORT'):
+    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+
 # Flask app setup
 app = Flask(__name__)
 
@@ -236,18 +241,27 @@ def userinfo():
 
 @app.route("/login/callback")
 def callback():
+    # callback 함수 시작 부분에 추가
+    print("Request URL:", request.url)
+    print("Request headers:", dict(request.headers))
+    print("X-Forwarded-Proto:", request.headers.get("X-Forwarded-Proto"))
     
     code = request.args.get("code")
     
     google_provider_cfg = get_google_provider_cfg()
     token_endpoint = google_provider_cfg["token_endpoint"]
 
-    auth_response = request.url.replace("http://", "https://", 1)
+    # HTTPS 강제 요구사항 문제 해결을 위해 authorization_response 수정
+    # 프록시 헤더를 확인하여 실제 스키마 결정
+    if request.headers.get("X-Forwarded-Proto") == "https":
+        auth_response = request.url.replace("http://", "https://", 1)
+    else:
+        auth_response = request.url
 
     # Prepare and send request to get tokens! Yay tokens!
     token_url, headers, body = client.prepare_token_request(
         token_endpoint,
-        authorization_response=request.url,
+        authorization_response=auth_response,
         redirect_url=REDIRECT_URI,
         code=code,
     )
