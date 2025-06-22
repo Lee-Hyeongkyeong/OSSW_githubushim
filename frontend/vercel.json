@@ -1,8 +1,16 @@
 {
-    "rewrites": [
-      {
-        "source": "/api/:path*",
-        "destination": "https://ossw-githububushim.onrender.com/api/:path*"
-      }
-    ]
-  }
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://ossw-githububushim.onrender.com/api/:path*"
+    },
+    {
+      "source": "/login",
+      "destination": "https://ossw-githububushim.onrender.com/login"
+    },
+    {
+      "source": "/login/callback",
+      "destination": "https://ossw-githububushim.onrender.com/login/callback"
+    }
+  ]
+}
