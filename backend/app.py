@@ -10,6 +10,7 @@ from backend.recommend.content_routes    import content_recommend_bp
 from backend.recommend.detail_routes    import detail_recommend_bp
 from backend.chatbot_proxy import proxy_bp
 from werkzeug.middleware.proxy_fix import ProxyFix
+from flask_talisman import Talisman
 
 #필요시 API 추가
 #from googleLogin.views import google_bp 
@@ -28,6 +29,7 @@ import requests
 from flask_cors import CORS
 # Flask app setup
 app = Flask(__name__)
+Talisman(app, force_https=True)
 # 배포 중 http 통신 문제 해결 시도
 app.wsgi_app = ProxyFix(
     app.wsgi_app,
