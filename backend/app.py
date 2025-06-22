@@ -357,13 +357,13 @@ def logout():
         }), 500
 
 # Add a test endpoint to verify CORS is working
-@app.route("/test", methods=['GET', 'OPTIONS'])
+@app.route("/test", methods=["GET"])
 def test():
-    proto = request.headers.get("X-Forwarded-Proto")
-    scheme = request.scheme
-    app.logger.info(f"X-Forwarded-Proto header: {proto}")
-    app.logger.info(f"Flask request.scheme: {scheme}")
-    return jsonify({"message": "Test successful"}), 200
+    return jsonify({
+        "x_forwarded_proto": request.headers.get("X-Forwarded-Proto"),
+        "scheme": request.scheme
+    }), 200
+
 
 def get_google_provider_cfg():
     return requests.get(GOOGLE_DISCOVERY_URL).json()
