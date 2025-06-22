@@ -243,7 +243,7 @@ def health_check():
         'timestamp': int(time.time() * 1000)
     })
 
-@app.route("/")
+@chatbot_bp.route("/")
 def index():
     # 간단히 헬스체크나 문서 페이지로 리다이렉트
     return "Chatbot API is running.", 200
