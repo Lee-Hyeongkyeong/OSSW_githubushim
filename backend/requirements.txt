@@ -11,6 +11,7 @@ httpx==0.24.1
 pydantic>=2.11.7
 flask-sqlalchemy==3.1.1
 waitress
+flask-talisman
 pytest
 pytest-cov
 coverage
