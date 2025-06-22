@@ -15,3 +15,4 @@ flask-talisman
 pytest
 pytest-cov
 coverage
+gunicorn==20.1.0
