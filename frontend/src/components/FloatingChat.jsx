@@ -4,6 +4,36 @@ import axios from "axios";
 import chatbotImg from "../assets/pic/chatbot.png";
 import userImg from "../assets/pic/userImg.png";
 import API_CONFIG from "../config/api";
+import { keyframes } from "styled-components";
+
+/* 점 세 개가 번갈아 깜빡이는 애니메이션 */
+const blink = keyframes`
+  0%, 20%  { opacity: 0; }
+  40%      { opacity: 1; }
+  60%      { opacity: 0; }
+  80%,100% { opacity: 1; }
+`;
+
+/* 점 하나 */
+const Dot = styled.span`
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  margin-left: 3px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: ${blink} 1.2s infinite;
+  animation-delay: ${({ delay }) => delay}s;
+`;
+
+/* “…“ 전체 묶음 */
+const LoadingDots = () => (
+  <>
+    <Dot delay={0} />
+    <Dot delay={0.2} />
+    <Dot delay={0.4} />
+  </>
+);
 
 // axios 기본 설정
 axios.defaults.baseURL = API_CONFIG.CHATBOT_BASE_URL;
@@ -95,6 +125,7 @@ const FloatingChat = () => {
       id: Date.now() + 1,
       user: "partner",
       text: "장소를 탐색하고 있습니다.",
+      loading: true 
     };
     setMessages((m) => [...m, loadingMsg]);
 
@@ -189,7 +220,14 @@ const FloatingChat = () => {
                 <MsgRow key={msg.id} $isUser={msg.user === "user"}>
                   {msg.user === "partner" && <AvatarMini src={chatbotImg} />}
                   <MsgBubble $isUser={msg.user === "user"}>
-                    {msg.text}
+                      {msg.loading ? (             // ← 로딩용 메시지라면
+                        <>
+                          장소를 탐색하고 있습니다
+                          <LoadingDots />           {/* ← 점점점 애니메이션 */}
+                        </>
+                      ) : (
+                        msg.text                   // ← 일반 메시지는 그대로 출력
+                      )}
                     {msg.recommendations?.map((r, i) => (
                       <PlaceCard key={i}>
                         <PlaceTitle>{r.title}</PlaceTitle>
