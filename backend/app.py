@@ -29,7 +29,10 @@ import requests
 from flask_cors import CORS
 # Flask app setup
 app = Flask(__name__)
-
+@app.before_request
+def force_https_scheme():
+    # SSL 종료 뒤 내부 HTTP라도, wsgi.url_scheme 을 강제로 'https' 로 세팅
+    request.environ['wsgi.url_scheme'] = 'https'
 # 배포 중 http 통신 문제 해결 시도
 app.wsgi_app = ProxyFix(
     app.wsgi_app,
@@ -39,7 +42,7 @@ app.wsgi_app = ProxyFix(
     x_prefix=1     # X-Forwarded-Prefix (필요시)
 )
 
-Talisman(app, force_https=True)
+# Talisman(app, force_https=True)
 
 app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
 CORS(
