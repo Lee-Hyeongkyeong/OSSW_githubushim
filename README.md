@@ -153,6 +153,7 @@ OSSW_githubushim/
 │   │   ├── integration/
 │   │   │   ├── test_api_endpoints.py
 │   │   │   └── test_main_app.py
+│   │   │
 │   │   └── unit/
 │   │       ├── test_google_user.py
 │   │       ├── test_survey_logic.py
@@ -168,6 +169,7 @@ OSSW_githubushim/
 │   ├── run.py             # 실행 파일
 │   ├── schema.sql         # 데이터베이스 스키마
 │   └── __init__.py        # Python 패키지 초기화
+│   
 ├── chatbot_proxy.py       # 챗봇 프록시
 ├── chatbot_backend
 │   ├── app/
