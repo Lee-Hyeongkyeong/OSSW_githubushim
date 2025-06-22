@@ -32,15 +32,22 @@ const Survey2_1 = () => {
     try {
       // 선택한 옵션의 실제 값
       const selectedPurposes = selected.map(idx => images[idx].key);
+      
       console.log("Sending survey data:", { 
         purposes: selectedPurposes 
       }); // 디버깅용
 
-      // localStorage에서 travel_style 가져오기
-      const travelStyle = localStorage.getItem('travel_style');
-      if (!travelStyle) {
-        throw new Error('Travel style not found');
+      // localStorage에서 travel_style_1과 travel_style_2 가져오기
+      const travelStyle1 = localStorage.getItem('travel_style_1');
+      const travelStyle2 = localStorage.getItem('travel_style_2');
+      
+      if (!travelStyle1 || !travelStyle2) {
+        throw new Error('Travel style data not found. Please complete the previous steps.');
       }
+
+      // travel_style을 통합하여 생성 (서버에서 기대하는 형식)
+      const travelStyle = `${travelStyle1}_${travelStyle2}`;
+      console.log("Combined travel_style:", travelStyle);
 
       const response = await fetch(`${API_CONFIG.BASE_URL}/api/survey`, {
         method: "POST",

@@ -18,6 +18,15 @@ const Survey1_1 = () => {
   const navigate = useNavigate();
   const progress = 20;
 
+  // 컴포넌트 마운트 시 localStorage 디버깅
+  React.useEffect(() => {
+    console.log("=== Survey1-1 localStorage debug ===");
+    console.log("travel_style_1:", localStorage.getItem('travel_style_1'));
+    console.log("travel_style:", localStorage.getItem('travel_style'));
+    console.log("All localStorage keys:", Object.keys(localStorage));
+    console.log("===================================");
+  }, []);
+
   // 드래그 결과 처리
   const handleDragEnd = (result) => {
     if (!result.destination) return;
@@ -36,11 +45,14 @@ const Survey1_1 = () => {
         priorities: selectedPriority 
       }); // 디버깅용
 
-      // localStorage에서 travel_style 가져오기
-      const travelStyle = localStorage.getItem('travel_style');
-      if (!travelStyle) {
-        throw new Error('Travel style not found');
+      // localStorage에서 travel_style_1 가져오기 (Survey1에서 저장한 키)
+      const travelStyle1 = localStorage.getItem('travel_style_1');
+      if (!travelStyle1) {
+        throw new Error('Travel style not found. Please go back to the previous step.');
       }
+
+      // travel_style_1을 travel_style로 변환 (서버에서 기대하는 키)
+      const travelStyle = travelStyle1;
 
       const response = await fetch(`${API_CONFIG.BASE_URL}/api/survey`, {
         method: "POST",
