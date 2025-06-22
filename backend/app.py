@@ -27,12 +27,21 @@ from flask_login import (
 from oauthlib.oauth2 import WebApplicationClient
 import requests
 from flask_cors import CORS
+
 # Flask app setup
 app = Flask(__name__)
+
 @app.before_request
-def force_https_scheme():
-    # SSL 종료 뒤 내부 HTTP라도, wsgi.url_scheme 을 강제로 'https' 로 세팅
-    request.environ['wsgi.url_scheme'] = 'https'
+def set_scheme_from_cf_visitor():
+    cf_visitor = request.headers.get("CF-Visitor")
+    if cf_visitor:
+        try:
+            scheme = json.loads(cf_visitor).get("scheme")
+            if scheme in ("http", "https"):
+                request.environ['wsgi.url_scheme'] = scheme
+        except Exception:
+            pass
+            
 # 배포 중 http 통신 문제 해결 시도
 app.wsgi_app = ProxyFix(
     app.wsgi_app,
