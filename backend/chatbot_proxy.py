@@ -5,7 +5,7 @@ from flask import Blueprint, request, jsonify, current_app
 from flask_cors import cross_origin
 
 # 환경변수로 변경 가능, 기본값은 8000번 포트
-CHATBOT_URL = os.getenv("CHATBOT_URL", "http://127.0.0.1:8000")
+CHATBOT_URL = os.getenv("CHATBOT_URL", "https://trippick-chatbot.onrender.com")
 
 proxy_bp = Blueprint("chatbot_proxy", __name__)
 
