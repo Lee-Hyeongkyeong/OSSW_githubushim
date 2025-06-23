@@ -21,7 +21,12 @@ const RecommendationGridMain = () => {
   const [page, setPage] = useState(1);
   const itemsPerPage = 6;
 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
+    setLoading(true);
+    setError(null);
     fetch(`${API_CONFIG.BASE_URL}/api/recommend/details?city=${city}`)
       .then(res => res.json())
       .then(data => {
@@ -30,8 +35,10 @@ const RecommendationGridMain = () => {
         setGroup3(data.group3.slice(0, 100));
         setGroup4(data.group4.slice(0, 100));
         setGroup5(data.group5.slice(0, 100));
-      });
-  }, []);
+      })
+      .catch(err => setError(err.message || '데이터를 불러오는 중 오류 발생'))
+      .finally(() => setLoading(false));
+  }, [city]);
 
   const handleTabClick = (tab) => { //페이지 초기화
     setActiveTab(tab);
@@ -54,17 +61,21 @@ const RecommendationGridMain = () => {
 
   return (
     <MainContainer>
-      <TabMenu>
-        {tabLabels.map((label) => (
-          <TabItem
-            key={label}
-            active={activeTab === label}
-            onClick={() => handleTabClick(label)}
-          >
-            {label}
-          </TabItem>
-        ))}
-      </TabMenu>
+      {loading && <div>불러오는 중…</div>}
+      {error && <div>❌ 오류: {error}</div>}
+      {!loading && !error && (
+        <TabMenu>
+          {tabLabels.map((label) => (
+            <TabItem
+              key={label}
+              active={activeTab === label}
+              onClick={() => handleTabClick(label)}
+            >
+              {label}
+            </TabItem>
+          ))}
+        </TabMenu>
+      )}
       <ImageGrid>
         {paginated.map((item, idx) => (
         <CardWrapper key={idx}>

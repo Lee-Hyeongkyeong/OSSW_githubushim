@@ -12,6 +12,7 @@ const RecommendationCourseMain = () => {
   const [group2, setGroup2] = useState([]);
   const [group3, setGroup3] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const navigate = useNavigate();
 
@@ -21,6 +22,7 @@ const RecommendationCourseMain = () => {
   
   useEffect(() => {
     setLoading(true);
+    setError(null);
     fetch(`${API_CONFIG.BASE_URL}/api/recommend/contents?city=${city}`, {
       credentials: "include",  // 로그인 세션 쿠키가 필요하다면 추가
 
@@ -33,13 +35,17 @@ const RecommendationCourseMain = () => {
         setLoading(false);
       })
       .catch(error => {
-        console.error('Error fetching recommendations:', error);
+        setError(error.message || '데이터를 불러오는 중 오류 발생');
         setLoading(false);
       });
   }, [city]);
 
   if (loading) {
     return <SurveyLoading />;
+  }
+
+  if (error) {
+    return <div>❌ 오류: {error}</div>;
   }
 
   return (
