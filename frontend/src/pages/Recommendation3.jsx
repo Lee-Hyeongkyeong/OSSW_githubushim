@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import API_CONFIG from '../config/api';
+import SurveyLoading from './SurveyLoading';
 
 const tabLabels = ["맛집", "체험 & 액티비티", "역사 & 문화", "힐링 & 자연", "관광"];
 // 예시 이미지 데이터 (실제 서비스에 맞게 교체)
@@ -88,70 +89,71 @@ const RecommendationGridMain = () => {
   const paginated = currentGroup.slice((page - 1) * itemsPerPage, page * itemsPerPage);
   const totalPages = Math.ceil(currentGroup.length / itemsPerPage);
 
+  if (loading) {
+    return <SurveyLoading />;
+  }
+  if (error) {
+    return <div>❌ 오류: {error}</div>;
+  }
+
   return (
     <MainContainer>
-      {loading && <div>불러오는 중…</div>}
-      {error && <div>❌ 오류: {error}</div>}
-      {!loading && !error && (
-        <>
-          {modalOpen && selectedItem && (
-            <ModalOverlay onClick={closeModal}>
-              <ModalContent onClick={e => e.stopPropagation()}>
-                <ModalTopBar>
-                  <ModalTitle>{selectedItem.title}</ModalTitle>
-                  <CloseButton onClick={closeModal}>×</CloseButton>
-                </ModalTopBar>
-                <ModalImageWrapper>
-                  {selectedItem.firstimage && (
-                    <ModalImage src={selectedItem.firstimage} alt={selectedItem.title} />
-                  )}
-                </ModalImageWrapper>
-                <ModalAddress>
-                  <a
-                    href={`https://map.naver.com/p/search/${encodeURIComponent(selectedItem.title)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ color: '#333', textDecoration: 'none', fontWeight: 'bold' }}
-                  >
-                    주소: {selectedItem.addr1} {selectedItem.addr2}
-                  </a>
-                </ModalAddress>
-                <TagList>
-                  {(selectedItem.tags || []).map((tag, i) => (
-                    <Tag key={i}>#{tag}</Tag>
-                  ))}
-                </TagList>
-              </ModalContent>
-            </ModalOverlay>
-          )}
-          <TabMenu>
-            {tabLabels.map((label) => (
-              <TabItem
-                key={label}
-                active={activeTab === label}
-                onClick={() => handleTabClick(label)}
+      {modalOpen && selectedItem && (
+        <ModalOverlay onClick={closeModal}>
+          <ModalContent onClick={e => e.stopPropagation()}>
+            <ModalTopBar>
+              <ModalTitle>{selectedItem.title}</ModalTitle>
+              <CloseButton onClick={closeModal}>×</CloseButton>
+            </ModalTopBar>
+            <ModalImageWrapper>
+              {selectedItem.firstimage && (
+                <ModalImage src={selectedItem.firstimage} alt={selectedItem.title} />
+              )}
+            </ModalImageWrapper>
+            <ModalAddress>
+              <a
+                href={`https://map.naver.com/p/search/${encodeURIComponent(selectedItem.title)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: '#333', textDecoration: 'none', fontWeight: 'bold' }}
               >
-                {label}
-              </TabItem>
-            ))}
-          </TabMenu>
-          <ImageGrid>
-            {paginated.map((item, idx) => (
-            <CardWrapper key={idx}>
-              <ImageCard onClick={() => openModal(item)}>
-                <ImageThumb src={item.firstimage} alt={item.title} />
-              </ImageCard>
-              <ImageTitle onClick={() => openModal(item)}>{item.title}</ImageTitle>
-            </CardWrapper>
-          ))}
-        </ImageGrid>
-          <Pagination>
-            <PageButton disabled={page === 1} onClick={() => setPage(page - 1)}>&lt; 이전</PageButton>
-            <PageNumber>{page}</PageNumber>
-            <PageButton disabled={page === totalPages} onClick={() => setPage(page + 1)}>다음 &gt;</PageButton>
-          </Pagination>
-        </>
+                주소: {selectedItem.addr1} {selectedItem.addr2}
+              </a>
+            </ModalAddress>
+            <TagList>
+              {(selectedItem.tags || []).map((tag, i) => (
+                <Tag key={i}>#{tag}</Tag>
+              ))}
+            </TagList>
+          </ModalContent>
+        </ModalOverlay>
       )}
+      <TabMenu>
+        {tabLabels.map((label) => (
+          <TabItem
+            key={label}
+            active={activeTab === label}
+            onClick={() => handleTabClick(label)}
+          >
+            {label}
+          </TabItem>
+        ))}
+      </TabMenu>
+      <ImageGrid>
+        {paginated.map((item, idx) => (
+        <CardWrapper key={idx}>
+          <ImageCard onClick={() => openModal(item)}>
+            <ImageThumb src={item.firstimage} alt={item.title} />
+          </ImageCard>
+          <ImageTitle onClick={() => openModal(item)}>{item.title}</ImageTitle>
+        </CardWrapper>
+      ))}
+    </ImageGrid>
+      <Pagination>
+        <PageButton disabled={page === 1} onClick={() => setPage(page - 1)}>&lt; 이전</PageButton>
+        <PageNumber>{page}</PageNumber>
+        <PageButton disabled={page === totalPages} onClick={() => setPage(page + 1)}>다음 &gt;</PageButton>
+      </Pagination>
     </MainContainer>
   );
 };

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import API_CONFIG from '../config/api';
+import SurveyLoading from './SurveyLoading';
 
 const tabLabels = ["맛집", "체험 & 액티비티", "역사 & 문화", "힐링 & 자연", "관광"];
 // 예시 이미지 데이터 (실제 서비스에 맞게 교체)
@@ -59,23 +60,26 @@ const RecommendationGridMain = () => {
   const paginated = currentGroup.slice((page - 1) * itemsPerPage, page * itemsPerPage);
   const totalPages = Math.ceil(currentGroup.length / itemsPerPage);
 
+  if (loading) {
+    return <SurveyLoading />;
+  }
+  if (error) {
+    return <div>❌ 오류: {error}</div>;
+  }
+
   return (
     <MainContainer>
-      {loading && <div>불러오는 중…</div>}
-      {error && <div>❌ 오류: {error}</div>}
-      {!loading && !error && (
-        <TabMenu>
-          {tabLabels.map((label) => (
-            <TabItem
-              key={label}
-              active={activeTab === label}
-              onClick={() => handleTabClick(label)}
-            >
-              {label}
-            </TabItem>
-          ))}
-        </TabMenu>
-      )}
+      <TabMenu>
+        {tabLabels.map((label) => (
+          <TabItem
+            key={label}
+            active={activeTab === label}
+            onClick={() => handleTabClick(label)}
+          >
+            {label}
+          </TabItem>
+        ))}
+      </TabMenu>
       <ImageGrid>
         {paginated.map((item, idx) => (
         <CardWrapper key={idx}>
