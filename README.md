@@ -11,6 +11,7 @@
 <br/>
 
 # Trippick - 떠나자, 나답게
+https://trippick.vercel.app
 
 ### Travel Recommendation System with Chatbot
 
