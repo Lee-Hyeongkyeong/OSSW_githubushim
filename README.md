@@ -12,6 +12,7 @@
 
 # Trippick - 떠나자, 나답게
 https://trippick.vercel.app
+- Chrome 에서 실행
 
 ### Travel Recommendation System with Chatbot
 
