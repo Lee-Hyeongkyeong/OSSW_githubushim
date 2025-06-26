@@ -6,7 +6,7 @@
 - z0713 (박인영)
 - annalee8595 (이예나)
 - Lee-Hyeongkyeong (이형경)
-- github_id4 (최재훈)
+- ChoiJaeHun313 (최재훈)
 
 <br/>
 
