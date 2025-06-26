@@ -3,7 +3,7 @@
 <br/>
 
 ## Contributors
-- github_id1 (박인영)
+- z0713 (박인영)
 - annalee8595 (이예나)
 - github_id3 (이형경)
 - github_id4 (최재훈)
