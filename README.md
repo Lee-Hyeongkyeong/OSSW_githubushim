@@ -13,6 +13,7 @@
 # Trippick - 떠나자, 나답게
 https://trippick.vercel.app
 - Chrome 에서 실행
+- 백엔드 서버 로드에 약간의 시간이 소요될 수 있습니다
 
 ### Travel Recommendation System with Chatbot
 
